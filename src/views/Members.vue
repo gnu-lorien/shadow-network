@@ -29,7 +29,7 @@
                     __type: 'Pointer',
                     className: '_User',
                     objectId: Parse.User.current().id
-                });
+                }).select("id");
                 q.find()
                     .then((members) => {
                         this.members = members.map(member => member.id);
