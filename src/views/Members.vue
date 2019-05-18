@@ -47,7 +47,7 @@
                 member.set('street_name', 'Unknown street name');
                 member.save()
                     .then((member) => {
-                        this.members = [member].concat(this.members);
+                        this.members = [member.id].concat(this.members);
                     })
                     .catch(function(e) {
                         alert("Failed to create new member " + e.message);
