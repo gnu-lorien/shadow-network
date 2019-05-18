@@ -31,7 +31,7 @@ var dashboardSettings = {
 var api = new ParseServer(settings);
 app.use('/parse/1', api);
 
-var dashboard = new ParseDashboard(dashboardSettings);
+var dashboard = new ParseDashboard(dashboardSettings, { allowInsecureHTTP: true});
 app.use('/apps', dashboard);
 
 http.createServer(app).listen(port, '0.0.0.0');
