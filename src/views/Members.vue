@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="row" v-if="hasCurrentMember">
-            Name: {{ currentMember.attributes.name }}
+            Name: {{ currentMember.name }} Id: {{ currentMember.id }}
         </div>
         <div class="row" v-else>
             No member selected
@@ -35,6 +35,9 @@
         computed: {
             hasCurrentMember() {
                 return this.$store.state.member.id !== "";
+            },
+            currentMember() {
+                return this.$store.state.member;
             }
         },
         methods: {
