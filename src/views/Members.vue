@@ -1,5 +1,11 @@
 <template>
     <div class="container">
+        <div class="row" v-if="hasCurrentMember">
+            Name: {{ currentMember.attributes.name }}
+        </div>
+        <div class="row" v-else>
+            No member selected
+        </div>
         <member-summary class="row" v-for="id in members" :key="id" :memberId="id" />
         <div class="row">
             <button v-on:click="add">Add</button>
@@ -15,6 +21,9 @@
     import MemberSummary from '@/components/MemberSummary.vue'
     export default {
         name: "Members.vue",
+        components: {
+            MemberSummary
+        },
         data: function () {
             return {
                 members: []
@@ -22,6 +31,11 @@
         },
         mounted: function () {
             this.fetch();
+        },
+        computed: {
+            hasCurrentMember() {
+                return this.$store.state.member.id !== "";
+            }
         },
         methods: {
             fetch() {
@@ -59,9 +73,6 @@
                 //member.attributes.name = 'Something else';
                 Vue.set(member, 'attributes.name', 'Something else');
             }
-        },
-        components: {
-            MemberSummary
         }
     }
 </script>
