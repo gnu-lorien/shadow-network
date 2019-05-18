@@ -1,7 +1,8 @@
 <template>
     <div>
         <p>A member with {{member.id}} and {{member.attributes.name}}</p>
-        <p><button v-on:click="changename">Change A Name</button></p>
+        <p><button v-on:click="edit">Edit</button></p>
+        <p><button v-on:click="select">Select</button></p>
     </div>
 </template>
 
@@ -38,11 +39,14 @@
             setupMember(member) {
                 this.member = member;
             },
-            changename() {
+            edit() {
                 this.member.set('name', 'A New Name');
                 for (const key in this.member.attributes) {
                     Vue.set(this.member, `attributes.${key}`, this.member.get(key));
                 }
+            },
+            select() {
+
             }
         }
     }
