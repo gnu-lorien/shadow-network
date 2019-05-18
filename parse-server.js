@@ -20,7 +20,7 @@ var settings = {
 var dashboardSettings = {
     "apps": [
         {
-            "serverURL": "http://localhost:" + port + "/parse/1",
+            "serverURL": process.env.PUBLIC_SERVER_URL || ("http://localhost:" + port + "/parse/1"),
             "appId": process.env.APPLICATION_ID || "APPLICATION_ID",
             "masterKey": process.env.MASTER_KEY || "MASTER_KEY",
             "appName": process.env.APPLICATION_NAME || "Shadow Network"
