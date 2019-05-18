@@ -40,7 +40,9 @@
             },
             changename() {
                 this.member.set('name', 'A New Name');
-                Vue.set(this.member, 'attributes.name', 'A New Name');
+                for (const key in this.member.attributes) {
+                    Vue.set(this.member, `attributes.${key}`, this.member.get(key));
+                }
             }
         }
     }
