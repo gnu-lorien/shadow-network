@@ -25,6 +25,12 @@ var dashboardSettings = {
             "masterKey": process.env.MASTER_KEY || "MASTER_KEY",
             "appName": process.env.APPLICATION_NAME || "Shadow Network"
         }
+    ],
+    "users": [
+        {
+            "user": process.env.DASHBOARD_ADMIN || "tmp",
+            "pass": process.env.DASHBAORD_PASSWORD || "tmp"
+        }
     ]
 }
 
