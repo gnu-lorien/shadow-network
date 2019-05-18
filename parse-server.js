@@ -29,7 +29,7 @@ var dashboardSettings = {
     "users": [
         {
             "user": process.env.DASHBOARD_ADMIN || "tmp",
-            "pass": process.env.DASHBAORD_PASSWORD || "tmp"
+            "pass": process.env.DASHBOARD_PASSWORD || "tmp"
         }
     ]
 }
