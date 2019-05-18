@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "parse-server": "node parse-server.js"
+    "start": "node parse-server.js"
   },
   "dependencies": {
     "bootstrap-vue": "^2.0.0-rc.19",

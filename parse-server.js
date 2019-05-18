@@ -32,6 +32,6 @@ var api = new ParseServer(settings);
 app.use('/parse/1', api);
 
 var dashboard = new ParseDashboard(dashboardSettings);
-app.use('/dashboard', dashboard);
+app.use('/apps', dashboard);
 
 http.createServer(app).listen(port, '0.0.0.0');
