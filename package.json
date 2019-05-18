@@ -11,6 +11,7 @@
     "bootstrap-vue": "^2.0.0-rc.19",
     "core-js": "^2.6.5",
     "parse": "^2.4.0",
+    "parse-server": "^3.3.0",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",
     "vuex": "^3.0.1"
@@ -54,5 +55,8 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "scripts": {
+    "parse-server": "node parse-server.js"
+  }
 }
