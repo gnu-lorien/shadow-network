@@ -9,7 +9,7 @@
 
 <script>
     /* global Parse */
-    import Resource from '@/models/member.js';
+    import Resource from '@/models/resource.js';
     //import Vue from 'vue';
     import ResourceSummary from '@/components/ResourceSummary.vue';
     export default {
