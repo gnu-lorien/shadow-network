@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Login from './views/Login.vue'
 import Members from './views/Members.vue'
+import Resources from './views/Resources.vue'
 
 Vue.use(Router)
 
@@ -32,6 +33,11 @@ export default new Router({
       path: '/members',
       name: 'members',
       component: Members
+    },
+    {
+      path: '/resources',
+      name: 'resources',
+      component: Resources
     }
   ]
 })
