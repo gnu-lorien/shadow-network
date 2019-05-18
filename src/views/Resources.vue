@@ -1,15 +1,15 @@
 <template>
     <div class="container">
-        <resource-summary class="row" v-for="id in resources" :key="id" :resourceId="id" />
         <div class="row">
             <button v-on:click="add">Add</button>
         </div>
+        <resource-summary class="row" v-for="id in resources" :key="id" :resourceId="id" />
     </div>
 </template>
 
 <script>
     /* global Parse */
-    let Resource = Parse.Object.extend("Resource");
+    import Resource from '@/models/member.js';
     //import Vue from 'vue';
     import ResourceSummary from '@/components/ResourceSummary.vue';
     export default {
