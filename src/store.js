@@ -3,6 +3,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import Member from '@/models/member.js'
 import Resource from '@/models/resource.js';
+import Component from '@/models/component.js';
 
 Vue.use(Vuex)
 
@@ -28,6 +29,9 @@ let MemberModule = {
             state.resourceIds = state.resourceIds.filter((element) => {
                 return element !== resourceId;
             });
+        },
+        addCurrentMemberResourceId(state, resourceId, componentId) {
+
         }
     },
     actions: {
@@ -69,6 +73,9 @@ let ResourcesModule = {
                 Vue.set(resource, `${key}`, parseResource.get(key));
             }
             Vue.set(state.resources, resource.id, resource);
+        },
+        destroyCurrentMemberResourceComponentId(state, resourceId, componentId) {
+
         }
     },
     actions: {
@@ -82,6 +89,15 @@ let ResourcesModule = {
                     context.commit('setResource', resource);
                     return Promise.resolve(context.state.resources[resourceId]);
                 });
+        },
+        loadOrUseResourceComponents(context, resourceId) {
+            return context.dispatch('loadOrUseResource', resourceId)
+                .then(() => {
+                    return context.dispatch('loadOrUseComponentsForResource', resourceId);
+                })
+                .then((components) => {
+                    Vue.set(context.state.resources[resourceId], 'componentIds', components.map(c => c.id));
+                })
         },
         destroyResource(context, resourceId) {
             return context.dispatch('loadOrUseResource', resourceId)
@@ -106,9 +122,79 @@ let ResourcesModule = {
     }
 };
 
+let ComponentsModule = {
+    state: {
+        components: {},
+        remoteComponents: {}
+    },
+    mutations: {
+        setComponent(state, parseComponent) {
+            state.remoteComponents[parseComponent.id] = parseComponent;
+            const component = {}
+            component.id = parseComponent.id;
+            for (const key in parseComponent.attributes) {
+                Vue.set(component, `${key}`, parseComponent.get(key));
+            }
+            Vue.set(state.components, component.id, component);
+        }
+    },
+    actions: {
+        loadOrUseComponent(context, componentId) {
+            if (context.state.components[componentId] !== undefined) {
+                return Promise.resolve(context.state.components[componentId]);
+            }
+            const q = new Parse.Query(Component);
+            return q.get(componentId)
+                .then((component) => {
+                    context.commit('setComponent', component);
+                    return Promise.resolve(context.state.components[componentId]);
+                });
+        },
+        loadOrUseComponentsForResource(context, resourceId) {
+            const q = new Parse.Query(Component).equalTo("resource", {
+                __type: 'Pointer',
+                className: 'Resource',
+                objectId: resourceId
+            });
+            return q.find()
+                .then((parseComponents) => {
+                    for (const parseComponent of parseComponents)
+                    {
+                        context.commit('setComponent', parseComponent);
+                    }
+                    const components = parseComponents.map(({id}) => {
+                        return context.state.components[id];
+                    });
+                    return Promise.resolve(components);
+                });
+        },
+        destroyComponent(context, componentId) {
+            return context.dispatch('loadOrUseComponent', componentId)
+                .then(() => {
+                    // Cache now has the resource we want
+                    return context.state.remoteComponents[componentId].destroy();
+                })
+                .then(() => {
+                    delete context.state.remoteComponents[componentId];
+                    delete context.state.components[componentId];
+                    context.commit('destroyCurrentMemberResourceComponentId', componentId);
+                });
+        },
+        saveComponent(context, componentId) {
+            if (context.state.components[componentId] === undefined) {
+                return Promise.reject({ message: "No loaded component with id " + componentId});
+            }
+
+            context.state.remoteComponents[componentId].set('short', context.state.components[componentId].short);
+            return context.state.remoteComponents[componentId].save();
+        }
+    }
+};
+
 export default new Vuex.Store({
     modules: {
         member: MemberModule,
-        resources: ResourcesModule
+        resources: ResourcesModule,
+        components: ComponentsModule
     }
 });

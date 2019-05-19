@@ -7,11 +7,12 @@ import Members from './views/Members.vue'
 import MemberLanding from './views/MemberLanding.vue'
 import MemberResources from './views/MemberResources.vue'
 import ResourceEdit from './views/ResourceEdit.vue'
+import ComponentEdit from './views/ComponentEdit.vue'
 import store from './store'
 
 Vue.use(Router)
 
-const router =  new Router({
+const router = new Router({
     mode: 'history',
     base: process.env.BASE_URL,
     routes: [
@@ -72,8 +73,20 @@ const router =  new Router({
                     component: ResourceEdit,
                     meta: {
                         autoLoadMember: true
-                    }
+                    },
+                    children: [
+                        {
+                            path: 'component/:componentId',
+                            name: 'memberResourceComponentEdit',
+                            props: true,
+                            component: ComponentEdit,
+                            meta: {
+                                autoLoadMember: true
+                            }
+                        }
+                    ]
                 }
+
             ]
         }
     ]
