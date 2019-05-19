@@ -4,6 +4,8 @@ import Home from './views/Home.vue'
 import Login from './views/Login.vue'
 import Members from './views/Members.vue'
 import Resources from './views/Resources.vue'
+import MemberLanding from './views/MemberLanding.vue'
+import MemberResources from './views/MemberResources.vue'
 
 Vue.use(Router)
 
@@ -34,7 +36,18 @@ export default new Router({
             name: 'members',
             component: Members
         },
-        {},
+        {
+            path: '/member/:memberId',
+            name: 'memberLanding',
+            component: MemberLanding,
+            children: [
+                {
+                    path: 'resources',
+                    name: 'memberResources',
+                    component: MemberResources
+                }
+            ]
+        },
         {
             path: '/resources',
             name: 'resources',
