@@ -11,19 +11,14 @@
 </template>
 
 <script>
-    import Vue from 'vue';
-
     export default {
         name: "ResourceSummary",
         props: [
             'resourceId'
         ],
-        data: function () {
-            return {
-                resource: {
-                    id: "",
-                    name: ""
-                }
+        computed: {
+            resource() {
+                return this.$store.state.resources.resources[this.$props.resourceId] || { id: "" , name: ""};
             }
         },
         mounted: function () {
@@ -31,16 +26,10 @@
         },
         methods: {
             fetch() {
-                this.$store.dispatch('loadOrUseResource', this.$props.resourceId)
-                    .then((resource) => {
-                        this.resource = resource;
-                    });
+                this.$store.dispatch('loadOrUseResource', this.$props.resourceId);
             },
             edit() {
-                this.member.set('name', 'A New Name');
-                for (const key in this.member.attributes) {
-                    Vue.set(this.member, `attributes.${key}`, this.member.get(key));
-                }
+                this.resource.name = "Ooo ah where you at";
             },
             remove() {
                 this.$store.dispatch('destroyResource', this.$props.resourceId)
