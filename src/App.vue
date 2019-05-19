@@ -7,6 +7,7 @@
       <router-link to="/resources">Resources</router-link> |
       <router-link to="/members">Members</router-link>
     </div>
+    <header-view/>
     <router-view/>
   </div>
 </template>
@@ -29,4 +30,13 @@
           'APPLICATION_ID', // This is your Application ID
           'g8q6x9uvsept5Sjfz3hdiiP3mh5mgOoda2rZeP4I' // This is your Javascript key
   );
+
+  import HeaderView from './views/HeaderView.vue'
+
+  export default {
+    name: "App",
+    components: {
+      HeaderView
+    }
+  }
 </script>
