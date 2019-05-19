@@ -36,10 +36,10 @@
                 return this.resource.member.id;
             },
             resource() {
-                return this.$store.state.resources.resources[this.$props.resourceId] || {id: "", name: ""};
+                return this.$store.state.resources.resources[this.$props.resourceId] || {id: "", name: "", componentIds: []};
             },
             componentIds() {
-                return this.$store.state.resources.resources[this.$props.resourceId].componentIds;
+                return this.resource.componentIds;
             }
         },
         mounted: function () {
@@ -73,7 +73,7 @@
                 component.save()
                     .then((component) => {
                         this.$store.commit('setComponent', component);
-                        this.$store.commit('addCurrentMemberResourceComponentId', this.$props.resourceId, component.id);
+                        this.$store.commit('addCurrentMemberResourceComponentId', {resourceId: this.$props.resourceId, componentId: component.id});
                     })
                     .catch((e) => {
                         alert("Failed to create a new component " + e.message);

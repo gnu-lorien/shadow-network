@@ -29,9 +29,6 @@ let MemberModule = {
             state.resourceIds = state.resourceIds.filter((element) => {
                 return element !== resourceId;
             });
-        },
-        addCurrentMemberResourceId(state, resourceId, componentId) {
-
         }
     },
     actions: {
@@ -74,8 +71,18 @@ let ResourcesModule = {
             }
             Vue.set(state.resources, resource.id, resource);
         },
-        destroyCurrentMemberResourceComponentId(state, resourceId, componentId) {
-
+        destroyCurrentMemberResourceComponentId(state, { resourceId, componentId }) {
+            if (state.resources[resourceId] !== undefined) {
+                let n = state.resources[resourceId].componentIds.filter((element) => {
+                    return element != componentId;
+                });
+                Vue.set(state.resources[resourceId], 'componentIds', n);
+            }
+        },
+        addCurrentMemberResourceComponentId(state, { resourceId, componentId }) {
+            if (state.resources[resourceId] !== undefined) {
+                state.resources[resourceId].componentIds = [componentId].concat(state.resources[resourceId].componentIds);
+            }
         }
     },
     actions: {
@@ -169,15 +176,17 @@ let ComponentsModule = {
                 });
         },
         destroyComponent(context, componentId) {
+            let resourceId;
             return context.dispatch('loadOrUseComponent', componentId)
                 .then(() => {
                     // Cache now has the resource we want
+                    resourceId = context.state.remoteComponents[componentId].get('resource').id;
                     return context.state.remoteComponents[componentId].destroy();
                 })
                 .then(() => {
                     delete context.state.remoteComponents[componentId];
                     delete context.state.components[componentId];
-                    context.commit('destroyCurrentMemberResourceComponentId', componentId);
+                    context.commit('destroyCurrentMemberResourceComponentId', { resourceId: resourceId, componentId: componentId});
                 });
         },
         saveComponent(context, componentId) {

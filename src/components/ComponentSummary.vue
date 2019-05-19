@@ -42,11 +42,8 @@
             },
             remove() {
                 this.$store.dispatch('destroyComponent', this.$props.componentId)
-                    .then(() => {
-                        this.component = {
-                            id: "",
-                            short: ""
-                        }
+                    .catch((e) => {
+                        alert("Broke destroying component " + e.message);
                     })
             }
         }
