@@ -1,5 +1,13 @@
 <template>
-    <div class="container">
+    <div class="container" v-if="username">
+        <div class="row">
+            <div class="col text-center">
+                <p>Loggen in as {{ username }}</p>
+                <button v-on:click="logout">Log Out</button>
+            </div>
+        </div>
+    </div>
+    <div class="container" v-else>
         <div class="row">
             <div class="col text-center">
                 <form class="form-signin">
@@ -23,7 +31,20 @@
         data: function () {
             return {
                 email: "",
-                password: ""
+                password: "",
+                username: null
+            }
+        },
+        mounted: function () {
+            if (Parse.User.current()) {
+                this.username = Parse.User.current().get('username');
+            } else {
+                this.username = null;
+            }
+        },
+        computedProperty: {
+            hasCurrentUser: function() {
+                return Parse.User.current() !== null;
             }
         },
         methods: {
@@ -45,7 +66,6 @@
                     .catch(function (e) {
                         alert("Error calling hello " + e.message);
                     });
-                alert("What?");
                 Parse.User.logIn(this.email, this.password)
                     .then(() => {
                         // Used an arrow function here because I
@@ -56,6 +76,15 @@
                     .catch(function (e) {
                         alert("Error logging in! " + e.message);
                     });
+            },
+            logout() {
+                Parse.User.logOut()
+                    .then(() => {
+                        this.username = null;
+                    })
+                    .catch(function (e) {
+                        alert("Error logging out! " + e.message);
+                    })
             }
         }
     }

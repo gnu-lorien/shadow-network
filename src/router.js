@@ -1,3 +1,4 @@
+/* global Parse */
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
@@ -9,18 +10,24 @@ import MemberResources from './views/MemberResources.vue'
 
 Vue.use(Router)
 
-export default new Router({
+const router =  new Router({
     mode: 'history',
     base: process.env.BASE_URL,
     routes: [
         {
             path: '/',
             name: 'home',
-            component: Home
+            component: Home,
+            meta: {
+                authorizationOptional: true,
+            }
         },
         {
             path: '/about',
             name: 'about',
+            meta: {
+                authorizationOptional: true,
+            },
             // route level code-splitting
             // this generates a separate chunk (about.[hash].js) for this route
             // which is lazy-loaded when the route is visited.
@@ -29,7 +36,10 @@ export default new Router({
         {
             path: '/login',
             name: 'login',
-            component: Login
+            component: Login,
+            meta: {
+                authorizationOptional: true,
+            }
         },
         {
             path: '/members',
@@ -54,4 +64,18 @@ export default new Router({
             component: Resources
         }
     ]
-})
+});
+
+router.beforeEach((to, from, next) => {
+    if (to.meta.authorizationOptional) {
+        next();
+        return;
+    }
+    if (!Parse.User.current()) {
+        next('/login');
+    } else {
+        next();
+    }
+});
+
+export default router;
