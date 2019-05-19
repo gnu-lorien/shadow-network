@@ -22,25 +22,17 @@
         },
         mixins: [ CurrentMember ],
         props: [ 'memberId' ],
-        data: function() {
-            return {
-                resources: []
-            }
-        },
         mounted: function () {
             this.fetch();
         },
+        computed: {
+            resources() {
+                return this.$store.state.member.resourceIds;
+            }
+        },
         methods: {
             fetch() {
-                const q = new Parse.Query(Resource).equalTo("member", {
-                    __type: 'Pointer',
-                    className: 'Member',
-                    objectId: this.$props.memberId
-                }).select("id");
-                q.find()
-                    .then((resources) => {
-                        this.resources = resources.map(resource => resource.id);
-                    });
+                this.$store.dispatch('loadOrUseCurrentMemberResourceIds');
             },
             add() {
                 const member = new Resource();
@@ -53,7 +45,8 @@
                 member.set('name', 'Unknown name');
                 member.save()
                     .then((resource) => {
-                        this.resources = [resource.id].concat(this.resources);
+                        this.$store.commit('setResource', resource);
+                        this.$store.commit('addCurrentMemberResourceId', resource.id);
                     })
                     .catch(function(e) {
                         alert("Failed to create new resource " + e.message);

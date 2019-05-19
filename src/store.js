@@ -11,7 +11,8 @@ let MemberModule = {
         member: {
             id: "",
             name: ""
-        }
+        },
+        resourceIds: []
     },
     mutations: {
         setCurrentMember(state, member) {
@@ -19,6 +20,14 @@ let MemberModule = {
             for (const key in member.attributes) {
                 Vue.set(state.member, `${key}`, member.get(key));
             }
+        },
+        addCurrentMemberResourceId(state, resourceId) {
+            state.resourceIds = [resourceId].concat(state.resourceIds);
+        },
+        destroyCurrentMemberResourceId(state, resourceId) {
+            state.resourceIds = state.resourceIds.filter((element) => {
+                return element !== resourceId;
+            });
         }
     },
     actions: {
@@ -31,7 +40,18 @@ let MemberModule = {
                 .then((member) => {
                     context.commit('setCurrentMember', member);
                 });
-        }
+        },
+        loadOrUseCurrentMemberResourceIds(context) {
+            const q = new Parse.Query(Resource).equalTo("member", {
+                __type: 'Pointer',
+                className: 'Member',
+                objectId: context.state.member.id
+            }).select("id");
+            return q.find()
+                .then((resources) => {
+                    context.state.resourceIds = resources.map(resource => resource.id);
+                });
+        },
     }
 };
 
@@ -53,8 +73,7 @@ let ResourcesModule = {
     },
     actions: {
         loadOrUseResource(context, resourceId) {
-            if (context.state.resources[resourceId] !== undefined)
-            {
+            if (context.state.resources[resourceId] !== undefined) {
                 return Promise.resolve(context.state.resources[resourceId]);
             }
             const q = new Parse.Query(Resource);
@@ -73,6 +92,7 @@ let ResourcesModule = {
                 .then(() => {
                     delete context.state.remoteResources[resourceId];
                     delete context.state.resources[resourceId];
+                    context.commit('destroyCurrentMemberResourceId', resourceId);
                 });
         }
     }
