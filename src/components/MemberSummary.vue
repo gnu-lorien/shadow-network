@@ -46,12 +46,8 @@
                 }
             },
             select() {
-                this.$store.commit('setCurrentMember', this.member);
                 this.$router.push({name: 'memberLanding', params: { memberId: this.member.id}});
             },
-            isCurrentMember(id) {
-                return this.$store.state.member.id === id;
-            }
         }
     }
 </script>
