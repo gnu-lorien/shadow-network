@@ -1,14 +1,9 @@
 <template>
-    <div class="container" v-if="hasCurrentMember">
+    <div class="container">
         <div class="row">
             <button v-on:click="add">Add</button>
         </div>
         <resource-summary class="row" v-for="id in resources" :key="id" :resourceId="id" />
-    </div>
-    <div class="container" v-else>
-        <div class="row">
-            No member selected.
-        </div>
     </div>
 </template>
 
@@ -26,6 +21,7 @@
             ResourceSummary
         },
         mixins: [ CurrentMember ],
+        props: [ 'memberId' ],
         data: function() {
             return {
                 resources: []
@@ -39,7 +35,7 @@
                 const q = new Parse.Query(Resource).equalTo("member", {
                     __type: 'Pointer',
                     className: 'Member',
-                    objectId: this.currentMember.id
+                    objectId: this.$props.memberId
                 }).select("id");
                 q.find()
                     .then((resources) => {
@@ -53,7 +49,7 @@
                 acl.setPublicReadAccess( true);
                 member.setACL(acl);
 
-                member.set('member', new Member({id: this.currentMember.id}));
+                member.set('member', new Member({id: this.$props.memberId}));
                 member.set('name', 'Unknown name');
                 member.save()
                     .then((resource) => {
