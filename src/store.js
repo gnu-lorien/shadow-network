@@ -94,6 +94,14 @@ let ResourcesModule = {
                     delete context.state.resources[resourceId];
                     context.commit('destroyCurrentMemberResourceId', resourceId);
                 });
+        },
+        saveResource(context, resourceId) {
+            if (context.state.resources[resourceId] === undefined) {
+                return Promise.reject({ message: "No loaded resource with id " + resourceId});
+            }
+
+            context.state.remoteResources[resourceId].set('name', context.state.resources[resourceId].name);
+            return context.state.remoteResources[resourceId].save();
         }
     }
 };

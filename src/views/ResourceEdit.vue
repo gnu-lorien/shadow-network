@@ -5,6 +5,7 @@
                 <form class="form-resource-edit">
                     <label for="inputName">Name</label>
                     <input v-model="resource.name" id="inputName"/>
+                    <button v-on:click="save">Save</button>
                 </form>
             </div>
         </div>
@@ -12,6 +13,9 @@
             <div class="col">
                 Components
             </div>
+        </div>
+        <div class="row">
+
         </div>
     </div>
 </template>
@@ -34,6 +38,12 @@
             fetch() {
                 this.$store.dispatch('loadOrUseResource', this.$props.resourceId);
             },
+            save() {
+                this.$store.dispatch('saveResource', this.$props.resourceId)
+                    .catch(function (e) {
+                        alert("Failed to save resource! " + e.message);
+                    })
+            }
         }
     }
 </script>
