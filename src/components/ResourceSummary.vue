@@ -29,7 +29,7 @@
                 this.$store.dispatch('loadOrUseResource', this.$props.resourceId);
             },
             edit() {
-                this.resource.name = "Ooo ah where you at";
+                this.$router.push({'name': 'memberResourceEdit', params: { memberId: this.resource.member.id, resourceId: this.$props.resourceId}});
             },
             remove() {
                 this.$store.dispatch('destroyResource', this.$props.resourceId)

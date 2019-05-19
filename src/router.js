@@ -6,6 +6,7 @@ import Login from './views/Login.vue'
 import Members from './views/Members.vue'
 import MemberLanding from './views/MemberLanding.vue'
 import MemberResources from './views/MemberResources.vue'
+import ResourceEdit from './views/ResourceEdit.vue'
 import store from './store'
 
 Vue.use(Router)
@@ -62,6 +63,15 @@ const router =  new Router({
                     component: MemberResources,
                     meta: {
                         autoLoadMember: true,
+                    }
+                },
+                {
+                    path: 'resource/:resourceId',
+                    name: 'memberResourceEdit',
+                    props: true,
+                    component: ResourceEdit,
+                    meta: {
+                        autoLoadMember: true
                     }
                 }
             ]
