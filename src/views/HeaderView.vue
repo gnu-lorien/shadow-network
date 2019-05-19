@@ -10,16 +10,10 @@
 </template>
 
 <script>
+    import CurrentMember from '@/mixins/CurrentMember.js'
     export default {
         name: "HeaderView",
-        computed: {
-            hasCurrentMember() {
-                return this.$store.state.member.id !== "";
-            },
-            currentMember() {
-                return this.$store.state.member;
-            }
-        },
+        mixins: [ CurrentMember ]
     }
 </script>
 

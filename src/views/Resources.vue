@@ -1,9 +1,14 @@
 <template>
-    <div class="container">
+    <div class="container" v-if="hasCurrentMember">
         <div class="row">
             <button v-on:click="add">Add</button>
         </div>
         <resource-summary class="row" v-for="id in resources" :key="id" :resourceId="id" />
+    </div>
+    <div class="container" v-else>
+        <div class="row">
+            No member selected.
+        </div>
     </div>
 </template>
 
@@ -12,11 +17,15 @@
     import Resource from '@/models/resource.js';
     //import Vue from 'vue';
     import ResourceSummary from '@/components/ResourceSummary.vue';
+    import CurrentMember from '@/mixins/CurrentMember.js'
+    import Member from '@/models/member.js'
+
     export default {
         name: "Resources",
         components: {
             ResourceSummary
         },
+        mixins: [ CurrentMember ],
         data: function() {
             return {
                 resources: []
@@ -27,10 +36,10 @@
         },
         methods: {
             fetch() {
-                const q = new Parse.Query(Resource).equalTo("owner", {
+                const q = new Parse.Query(Resource).equalTo("member", {
                     __type: 'Pointer',
-                    className: '_User',
-                    objectId: Parse.User.current().id
+                    className: 'Member',
+                    objectId: this.currentMember.id
                 }).select("id");
                 q.find()
                     .then((resources) => {
@@ -44,7 +53,7 @@
                 acl.setPublicReadAccess( true);
                 member.setACL(acl);
 
-                member.set('owner', Parse.User.current());
+                member.set('member', new Member({id: this.currentMember.id}));
                 member.set('name', 'Unknown name');
                 member.save()
                     .then((resource) => {
