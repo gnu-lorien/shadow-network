@@ -2,7 +2,7 @@
     <div>
         <p>A member with {{member.id}} and {{member.attributes.name}}</p>
         <p><button v-on:click="edit">Edit</button></p>
-        <p><button v-on:click="select" v-if="!isCurrentMember(member.id)">Select</button></p>
+        <p><button v-on:click="select">Select</button></p>
     </div>
 </template>
 

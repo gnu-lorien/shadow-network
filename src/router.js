@@ -4,7 +4,6 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Login from './views/Login.vue'
 import Members from './views/Members.vue'
-import Resources from './views/Resources.vue'
 import MemberLanding from './views/MemberLanding.vue'
 import MemberResources from './views/MemberResources.vue'
 
@@ -57,11 +56,6 @@ const router =  new Router({
                     component: MemberResources
                 }
             ]
-        },
-        {
-            path: '/resources',
-            name: 'resources',
-            component: Resources
         }
     ]
 });
