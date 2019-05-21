@@ -1,15 +1,11 @@
 <template>
-    <div class="container">
-        <div class="row" v-if="hasCurrentMember">
-            Name: {{ currentMember.name }} Id: {{ currentMember.id }}
-        </div>
-        <div class="row" v-else-if="memberId">
-            Id: {{ memberId }}
-        </div>
-        <div class="row" v-else>
-            No member selected
-            Id: {{ memberId }}
-        </div>
+    <div v-if="hasCurrentMember">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">Name</li>
+            <li class="breadcrumb-item ">{{ currentMember.name }}</li>
+            <li class="breadcrumb-item active ">Handle</li>
+            <li class="breadcrumb-item ">{{ currentMember.street_name}} </li>
+        </ol>
     </div>
 </template>
 
