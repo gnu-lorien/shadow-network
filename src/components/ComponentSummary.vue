@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!editing">
+    <div class="row" v-if="!editing">
         <p>A component with {{component.id}} and {{component.short}}</p>
         <p>
             <button v-on:click="edit">Edit</button>
@@ -8,20 +8,32 @@
             <button v-on:click="remove">Delete</button>
         </p>
     </div>
-    <div v-else>
-        <p>{{component.id}}</p>
-        <button v-on:click="save">Save</button>
-        <button v-on:click="revert">Revert</button>
-        <!-- short long credit bonus reputation scope image order -->
+    <div class="col" v-else>
+        <div class="row">
+            <p>{{component.id}}</p>
+            <button v-on:click="save">Save</button>
+            <button v-on:click="revert">Revert</button>
+        </div>
         <form class="form-component-edit">
-            <label for="inputShort">Short Description</label>
-            <input v-model="short" id="inputShort"/>
-            <label for="inputLong">Long information text</label>
-            <textarea v-model="long" id="inputLong"></textarea>
-            <label for="inputCredit">Credits/Cash</label>
-            <input v-model="credit" id="inputCredit"/>
-            <label for="inputBonus">Bonus Bid</label>
-            <input v-model="bonus" id="inputBonus"/>
+            <div class="row">
+                <!-- short long credit bonus reputation scope image order -->
+                <div class="col">
+                    <label for="inputShort">Short Description</label>
+                    <input v-model="short" id="inputShort"/>
+                </div>
+                <div class="col">
+                    <label for="inputLong">Long information text</label>
+                    <textarea v-model="long" id="inputLong"></textarea>
+                </div>
+                <div class="col">
+                    <label for="inputCredit">Credits/Cash</label>
+                    <input v-model="credit" id="inputCredit"/>
+                </div>
+                <div class="col">
+                    <label for="inputBonus">Bonus Bid</label>
+                    <input v-model="bonus" id="inputBonus"/>
+                </div>
+            </div>
         </form>
     </div>
 </template>
