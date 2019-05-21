@@ -1,9 +1,11 @@
 <template>
     <div>
         <header-view :memberId="$props.memberId"></header-view>
-        <div id="nav">
-          <router-link :to="{ name: 'memberResources', params: { memberId: this.$route.params.memberId } }">Resources</router-link> |
-        </div>
+        <b-navbar id="nav" type="light" variant="light">
+            <b-navbar-nav>
+                <b-nav-item :to="{ name: 'memberResources', params: { memberId: this.$route.params.memberId } }">Resources</b-nav-item>
+            </b-navbar-nav>
+        </b-navbar>
         <router-view/>
     </div>
 </template>
