@@ -2,7 +2,7 @@
     <div class="container" v-if="username">
         <div class="row">
             <div class="col text-center">
-                <p>Loggen in as {{ username }}</p>
+                <p>Logged in as {{ username }}</p>
                 <button v-on:click="logout">Log Out</button>
             </div>
         </div>
