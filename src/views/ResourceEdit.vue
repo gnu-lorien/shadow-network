@@ -15,7 +15,9 @@
                 <button v-on:click="add">Add</button>
             </div>
         </div>
-        <component-summary v-for="id in componentIds" :key="id" :componentId="id" :memberId="memberId" :resourceId="resourceId" />
+        <b-list-group>
+            <component-summary v-for="id in componentIds" :key="id" :componentId="id" :memberId="memberId" :resourceId="resourceId" />
+        </b-list-group>
     </div>
 </template>
 

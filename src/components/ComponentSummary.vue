@@ -1,13 +1,17 @@
 <template>
-    <div class="row" v-if="!editing">
-        <p>A component with {{component.id}} and {{component.short}}</p>
-        <p>
-            <button v-on:click="edit">Edit</button>
+    <b-list-group-item href="#" type="secondary" class="flex-column align-items-start" v-if="!editing" v-on:click="editing = true">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{{component.short}}</h5>
+            <small>{{component.bonus}}</small>
+            <small>{{component.id}}</small>
+        </div>
+
+        <p class="mb-1">
+            {{component.long}}
         </p>
-        <p>
-            <button v-on:click="remove">Delete</button>
-        </p>
-    </div>
+
+        <small>{{component.credit}}</small>
+    </b-list-group-item>
     <div class="col" v-else>
         <div class="row">
             <p>{{component.id}}</p>
