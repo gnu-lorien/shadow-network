@@ -1,5 +1,5 @@
 <template>
-    <b-list-group-item href="#" type="secondary" class="flex-column align-items-start" v-if="!editing" v-on:click="editing = true">
+    <b-list-group-item href="#" type="secondary" class="flex-column align-items-start" v-if="!editing" v-on:click="edit">
         <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1">{{component.short}}</h5>
             <small>{{component.bonus}}</small>
@@ -17,6 +17,7 @@
             <p>{{component.id}}</p>
             <button v-on:click="save">Save</button>
             <button v-on:click="revert">Revert</button>
+            <button v-on:click="remove">Delete</button>
         </div>
         <form class="form-component-edit">
             <div class="row">
@@ -72,6 +73,10 @@
                 this.$store.dispatch('loadOrUseComponent', this.$props.componentId);
             },
             edit() {
+                this.short = this.component.short;
+                this.long = this.component.long;
+                this.credit = this.component.credit;
+                this.bonus = this.component.bonus;
                 this.editing = true;
             },
             remove() {
