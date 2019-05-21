@@ -1,9 +1,9 @@
 <template>
     <div>
+        <header-view :memberId="$props.memberId"></header-view>
         <div id="nav">
           <router-link :to="{ name: 'memberResources', params: { memberId: this.$route.params.memberId } }">Resources</router-link> |
         </div>
-        <header-view :memberId="$props.memberId"></header-view>
         <router-view/>
     </div>
 </template>

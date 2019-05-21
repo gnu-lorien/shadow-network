@@ -12,7 +12,6 @@
                 </b-navbar-nav>
             </b-collapse>
         </b-navbar>
-        <header-view/>
         <router-view/>
     </div>
 </template>
