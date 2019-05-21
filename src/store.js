@@ -189,13 +189,16 @@ let ComponentsModule = {
                     context.commit('destroyCurrentMemberResourceComponentId', { resourceId: resourceId, componentId: componentId});
                 });
         },
-        saveComponent(context, componentId) {
+        saveComponent(context, {componentId, newData}) {
             if (context.state.components[componentId] === undefined) {
                 return Promise.reject({ message: "No loaded component with id " + componentId});
             }
 
-            context.state.remoteComponents[componentId].set('short', context.state.components[componentId].short);
-            return context.state.remoteComponents[componentId].save();
+            context.state.remoteComponents[componentId].set(newData);
+            return context.state.remoteComponents[componentId].save()
+                .then(component => {
+                    return context.commit('setComponent', component);
+                });
         }
     }
 };

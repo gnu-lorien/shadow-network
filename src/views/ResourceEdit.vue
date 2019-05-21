@@ -5,7 +5,7 @@
                 <form class="form-resource-edit">
                     <label for="inputName">Name</label>
                     <input v-model="resource.name" id="inputName"/>
-                    <button v-on:click="save">Save</button>
+                    <button v-on:click.prevent="save">Save</button>
                 </form>
             </div>
         </div>

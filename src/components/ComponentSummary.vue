@@ -81,7 +81,13 @@
                     })
             },
             save() {
-                this.$store.dispatch('saveComponent', {...this.data()})
+                let newData = {
+                    bonus: parseInt(this.bonus),
+                    credit: parseInt(this.credit),
+                    short: this.short,
+                    long: this.long
+                }
+                this.$store.dispatch('saveComponent', {componentId: this.component.id, newData: newData})
                     .then(() => {
                         this.editing = false;
                     })
