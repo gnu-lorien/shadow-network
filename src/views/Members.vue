@@ -27,16 +27,14 @@
             this.fetch();
         },
         methods: {
-            fetch() {
+            async fetch() {
                 const q = new Parse.Query(Member).equalTo("owner", {
                     __type: 'Pointer',
                     className: '_User',
                     objectId: Parse.User.current().id
                 }).select("id");
-                q.find()
-                    .then((members) => {
-                        this.members = members.map(member => member.id);
-                    });
+                let members = await q.find();
+                this.members = members.map(member => member.id);
             },
             add() {
                 const member = new Member();

@@ -33,9 +33,6 @@
     import HeaderView from './views/HeaderView.vue'
 
     export default {
-        name: "App",
-        components: {
-            HeaderView
-        }
+        name: "App"
     }
 </script>
