@@ -19,6 +19,7 @@
     export default {
         name: "ResourceSummary",
         props: [
+            'memberId',
             'resourceId'
         ],
         components: {

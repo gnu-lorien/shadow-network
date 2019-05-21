@@ -3,7 +3,7 @@
         <div class="row">
             <button v-on:click="add">Add</button>
         </div>
-        <resource-summary class="row" v-for="id in resources" :key="id" :resourceId="id" />
+        <resource-summary class="row" v-for="id in resources" :key="id" :resourceId="id" :memberId="memberId"/>
     </div>
 </template>
 
