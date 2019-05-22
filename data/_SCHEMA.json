@@ -1,5 +1,5 @@
-{"_id": "Image","objectId": "string","updatedAt": "date","createdAt": "date","original": "file"}
+{"_id":"Image","objectId": "string","updatedAt": "date","createdAt": "date","original": "file"}
 {"_id":"Resource","objectId":"string","updatedAt":"date","createdAt":"date","name":"string","_metadata":{"indexes":{"_id_":{"_id":1}}},"member":"*Member"}
 {"_id":"Network","objectId":"string","updatedAt":"date","createdAt":"date","name":"string","_metadata":{"indexes":{"_id_":{"_id":1}}}}
 {"_id":"Member","objectId":"string","updatedAt":"date","createdAt":"date","name":"string","street_name":"string","network":"*Network","antecedence":"string","pronoun_preference":"string","owner":"*_User","_metadata":{"indexes":{"_id_":{"_id":1}}}}
-{"_id":"Component","objectId":"string","updatedAt":"date","createdAt":"date","short":"string","long":"string","credit":"number","reputation":"number","bonus":"number","scope":"array","image":"*Image","resource":"*Resource","_metadata":{"indexes":{"_id_":{"_id":1}}},"order":"number"}
+{"_id":"Component","objectId":"string","updatedAt":"date","createdAt":"date","short":"string","long":"string","credit":"number","reputation":"number","bonus":"number","scope":"array","image":"*Image","resource":"*Resource","_metadata":{"indexes":{"_id_":{"_id":1}}},"order":"number","karma":"number"}
