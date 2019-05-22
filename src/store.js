@@ -53,6 +53,14 @@ let MemberModule = {
                     context.state.resourceIds = resources.map(resource => resource.id);
                 });
         },
+        async updateAndSaveCurrentMember(context, newAttributes) {
+            const q = new Parse.Query(Member);
+            let member = await q.get(context.state.member.id);
+            member.set(newAttributes);
+            member = await member.save();
+            context.commit('setCurrentMember', member);
+            return Promise.resolve(member);
+        }
     }
 };
 
