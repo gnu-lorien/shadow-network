@@ -1,0 +1,11 @@
+ - Components are created by GMs on NPC characters. The whole system uses a double-ledger model where they come into the world via NPCs that represent contacts. Only NPCs may spawn things from nothing.
+ - Once a component has been distributed from an NPC it can never be deleted from the system. We want to keep an accurate record of the transactions that took place.
+ - There will be a way to archive components so we don't have to keep looking at them, but the records should be complete forever.
+ - Resources should be indivisible. Only add components to them that are absolutely linked. For example, a map doesn't make sense to be separate from its image and text. You shouldn't also put a credstick on there.
+ - Components should set the minimum number of properties per component. This will just work out better in the long run to have these piecewise.
+
+ - When cred goes into the vault the component still hangs around in the system, but it's owned by the Vault user to maintain the transaction record. ACLs will be used to keep people from seeing other people's vault transactions.
+
+ - When doing a trade your resources temporarily go into the Escrow user's inventory. When a trade fails they come out. When a trade succeeds they end up wherever the trade specified. We'll have to use atomics and such to manage this.
+
+ - The MVP for this is resource management and trading. Everything else can be enforced in person or handled outside of the system until it is complete. Even the vault isn't necessary if we use NPCs to make change.
