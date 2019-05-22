@@ -24,8 +24,7 @@
 
 <script>
     /* global Parse */
-    Parse.serverURL = 'https://shadownetwork.herokuapp.com/parse/1';
-    Parse.serverURL = 'http://localhost:1337/parse/1';
+    Parse.serverURL = process.env.VUE_APP_PARSE_SERVER_URL;
     Parse.initialize(
         'APPLICATION_ID', // This is your Application ID
         'g8q6x9uvsept5Sjfz3hdiiP3mh5mgOoda2rZeP4I' // This is your Javascript key
