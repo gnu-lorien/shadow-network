@@ -8,6 +8,7 @@ import MemberLanding from './views/MemberLanding.vue'
 import MemberResources from './views/MemberResources.vue'
 import ResourceEdit from './views/ResourceEdit.vue'
 import ComponentEdit from './views/ComponentEdit.vue'
+import MemberTrading from './views/MemberTrading.vue'
 import store from './store'
 
 Vue.use(Router)
@@ -85,6 +86,15 @@ const router = new Router({
                             }
                         }
                     ]
+                },
+                {
+                    path: 'trading',
+                    name: 'memberTrading',
+                    props: true,
+                    component: MemberTrading,
+                    meta: {
+                        autoLoadMember: true,
+                    }
                 }
 
             ]

@@ -73,6 +73,14 @@
                     alert("Please enter a username");
                 }
 
+                Parse.Cloud.run('hello')
+                    .then((response) => {
+                        alert("Nothing?");
+                        alert(JSON.stringify(response));
+                    })
+                    .catch(function (e) {
+                        alert("Error calling hello " + e.message);
+                    });
                 Parse.User.logIn(this.username, this.password)
                     .then(() => {
                         // Used an arrow function here because I
