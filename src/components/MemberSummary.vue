@@ -7,7 +7,7 @@
 </template>
 
 <script>
-    /* global Parse */
+    import Parse from 'parse';
     let Member = Parse.Object.extend("Member");
     import Vue from 'vue';
     export default {

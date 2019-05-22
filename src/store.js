@@ -1,4 +1,4 @@
-/* global Parse */
+import Parse from 'parse'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Member from '@/models/member.js'

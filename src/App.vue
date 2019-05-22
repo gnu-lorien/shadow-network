@@ -23,7 +23,7 @@
 </template>
 
 <script>
-    /* global Parse */
+    import Parse from 'parse';
     Parse.serverURL = process.env.VUE_APP_PARSE_SERVER_URL;
     Parse.initialize(
         'APPLICATION_ID', // This is your Application ID
