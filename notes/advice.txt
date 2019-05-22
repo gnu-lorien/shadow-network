@@ -9,3 +9,11 @@
  - When doing a trade your resources temporarily go into the Escrow user's inventory. When a trade fails they come out. When a trade succeeds they end up wherever the trade specified. We'll have to use atomics and such to manage this.
 
  - The MVP for this is resource management and trading. Everything else can be enforced in person or handled outside of the system until it is complete. Even the vault isn't necessary if we use NPCs to make change.
+
+ - Lifestyle is inventory slots because it also pays for the warehouse where you keep your stuff. This helps drive people into higher paying downtime quests in order to pay for it.
+
+ - GMs need to be able to put stuff into Escrow and then send it all out at game start rather than having to do it all at once. Pending transfers?
+
+ - Vault is also where KARMA components go
+
+ - KARMA needs to be added to components
