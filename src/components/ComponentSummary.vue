@@ -10,7 +10,7 @@
             {{component.long}}
         </p>
 
-        <small>{{component.credit}}</small>
+        <small>{{component.credit}}¥</small>
     </b-list-group-item>
     <div class="col" v-else>
         <div class="row">
