@@ -14,7 +14,7 @@
 </template>
 
 <script>
-    import HeaderView from "./HeaderView";
+    import HeaderView from "../HeaderView";
     export default {
         name: "MemberLanding",
         props: ["memberId"],

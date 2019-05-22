@@ -4,11 +4,13 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Login from './views/Login.vue'
 import Members from './views/Members.vue'
-import MemberLanding from './views/MemberLanding.vue'
-import MemberResources from './views/MemberResources.vue'
+import MemberLanding from './views/member/MemberLanding.vue'
+import MemberResources from './views/member/MemberResources.vue'
 import ResourceEdit from './views/ResourceEdit.vue'
 import ComponentEdit from './views/ComponentEdit.vue'
-import MemberTrading from './views/MemberTrading.vue'
+import MemberTrading from './views/member/MemberTrading.vue'
+import MemberVault from './views/member/Vault.vue'
+import MemberProfile from './views/member/Profile.vue'
 import store from './store'
 
 Vue.use(Router)
@@ -92,6 +94,24 @@ const router = new Router({
                     name: 'memberTrading',
                     props: true,
                     component: MemberTrading,
+                    meta: {
+                        autoLoadMember: true,
+                    }
+                },
+                {
+                    path: 'profile',
+                    name: 'memberProfile',
+                    props: true,
+                    component: MemberProfile,
+                    meta: {
+                        autoLoadMember: true,
+                    }
+                },
+                {
+                    path: 'vault',
+                    name: 'memberVault',
+                    props: true,
+                    component: MemberVault,
                     meta: {
                         autoLoadMember: true,
                     }
