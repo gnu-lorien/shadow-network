@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import Member from '@/models/member.js'
 import Resource from '@/models/resource.js';
 import Component from '@/models/component.js';
+import Trade from '@/models/trade.js';
 
 Vue.use(Vuex)
 
@@ -211,10 +212,84 @@ let ComponentsModule = {
     }
 };
 
+let TradingModule = {
+    state: {
+        trades: {},
+        remoteTrades: {}
+    },
+    mutations: {
+
+    },
+    actions: {
+        async initiateTradeWith(context, { meId, themId }) {
+            let me = await new Parse.Query(Member).get(meId);
+            let them = await new Parse.Query(Member).get(themId);
+            let trade = new Trade({
+                meId: me,
+                themId: them,
+                meResources: [],
+                themResources: [],
+                counter: 1
+            });
+            trade = await trade.save();
+            Vue.set(context.state.trades, trade.id, {
+                id: trade.id,
+                ...trade.attributes
+            });
+            context.state.remoteTrades[trade.id] = trade;
+            return Promise.resolve(context.state.trades[trade.id]);
+        },
+        async addResourceToTrade(context, { tradeId, resourceId, memberId }) {
+            const trade = context.state.trades[tradeId];
+            if (trade === undefined) {
+                return Promise.reject({message: "No trade matching " + tradeId});
+            }
+
+            let resourceIds = trade.meResources;
+            let resourceKey = "meResources";
+            if (memberId !== trade.meId.id) {
+                resourceIds = trade.themResources;
+                resourceKey = "themResources";
+            }
+            resourceIds = resourceIds.filter((e) => {
+                return e !== resourceId;
+            });
+            resourceIds = [resourceId].concat(resourceIds);
+            Vue.set(context.state.trades[tradeId], resourceKey, resourceIds);
+            context.state.remoteTrades[tradeId].set(resourceKey, resourceIds);
+
+            const result = await context.dispatch('attemptUpdate', context.state.remoteTrades[tradeId]);
+            if (result === false) {
+                return context.dispatch('addResourceToTrade', {
+                    tradeId: tradeId,
+                    resourceId: resourceId,
+                    memberId: memberId
+                });
+            }
+            return Promise.resolve(result);
+        },
+        async attemptUpdate(context, inTrade) {
+            let currentCount = inTrade.get('counter');
+            inTrade.increment('counter');
+            let newTrade = await inTrade.save();
+            context.state.remoteTrades[newTrade.id] = newTrade;
+            Vue.set(context.state.trades, newTrade.id, {
+                id: newTrade.id,
+                ...newTrade.attributes
+            });
+            if (currentCount + 1 !== newTrade.get('counter')) {
+                return Promise.resolve(false);
+            }
+            return Promise.resolve(newTrade);
+        }
+    }
+};
+
 export default new Vuex.Store({
     modules: {
         member: MemberModule,
         resources: ResourcesModule,
-        components: ComponentsModule
+        components: ComponentsModule,
+        trading: TradingModule
     }
 });
