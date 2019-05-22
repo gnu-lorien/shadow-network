@@ -24,13 +24,12 @@
 
 <script>
     /* global Parse */
-    Parse.serverURL = 'https://shadownetwork.herokuapp.com/parse/1'; // This is your Server URL
+    Parse.serverURL = 'https://shadownetwork.herokuapp.com/parse/1';
+    Parse.serverURL = 'http://localhost:1337/parse/1';
     Parse.initialize(
         'APPLICATION_ID', // This is your Application ID
         'g8q6x9uvsept5Sjfz3hdiiP3mh5mgOoda2rZeP4I' // This is your Javascript key
     );
-
-    import HeaderView from './views/HeaderView.vue'
 
     export default {
         name: "App"

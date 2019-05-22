@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "start": "node parse-server.js"
+    "start": "node parse-server.js",
+    "devstart": "nodemon -w cloud parse-server.js"
   },
   "dependencies": {
     "bootstrap-vue": "^2.0.0-rc.19",
