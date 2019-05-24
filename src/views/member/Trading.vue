@@ -19,26 +19,31 @@
             async startNewTrade() {
                 try {
                     let themId = "tUl6fCXYD4";
-                    let trade = await this.$store.dispatch('initiateTradeWith', {
-                        meId: this.memberId,
-                        themId: themId
-                    });
-                    trade = await this.$store.dispatch('addResourceToTrade', {
-                        tradeId: trade.id,
+                    let localTrade, remoteTrade;
+                    try {
+                        [localTrade, remoteTrade] = await this.$store.dispatch('initiateTradeWith', {
+                            meId: this.memberId,
+                            themId: themId
+                        });
+                    } catch (e) {
+                        console.log(JSON.stringify(e));
+                    }
+                    [localTrade, remoteTrade] = await this.$store.dispatch('addResourceToTrade', {
+                        tradeId: localTrade.id,
                         resourceId: "aoeuaoeu",
                         memberId: this.memberId
                     });
-                    trade = await this.$store.dispatch('addResourceToTrade', {
-                        tradeId: trade.id,
+                    [localTrade, remoteTrade] = await this.$store.dispatch('addResourceToTrade', {
+                        tradeId: localTrade.id,
                         resourceId: "aoeuaoeu",
                         memberId: this.memberId
                     });
-                    trade = await this.$store.dispatch('addResourceToTrade', {
-                        tradeId: trade.id,
+                    [localTrade, remoteTrade] = await this.$store.dispatch('addResourceToTrade', {
+                        tradeId: localTrade.id,
                         resourceId: "dige93thau",
                         memberId: themId
                     });
-                    console.log(trade);
+                    console.log(localTrade);
                 } catch (e) {
                     console.log(e.message);
                 }

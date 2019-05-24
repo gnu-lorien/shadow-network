@@ -237,7 +237,10 @@ let TradingModule = {
                 ...trade.attributes
             });
             context.state.remoteTrades[trade.id] = trade;
-            return Promise.resolve(context.state.trades[trade.id]);
+            return Promise.resolve([
+                context.state.trades[trade.id],
+                context.state.remoteTrades[trade.id]
+            ]);
         },
         async addResourceToTrade(context, { tradeId, resourceId, memberId }) {
             const trade = context.state.trades[tradeId];
@@ -259,26 +262,40 @@ let TradingModule = {
             context.state.remoteTrades[tradeId].set(resourceKey, resourceIds);
 
             const result = await context.dispatch('attemptUpdate', context.state.remoteTrades[tradeId]);
-            if (result === false) {
+            if (result[0] === false) {
                 return context.dispatch('addResourceToTrade', {
                     tradeId: tradeId,
                     resourceId: resourceId,
                     memberId: memberId
                 });
             }
-            return Promise.resolve(result);
+            return Promise.resolve([
+                context.state.trades[result.id],
+                context.state.remoteTrades[result.id]
+            ]);
         },
         async attemptUpdate(context, inTrade) {
             let currentCount = inTrade.get('counter');
-            inTrade.increment('counter');
-            let newTrade = await inTrade.save();
+            try {
+                inTrade.increment('counter');
+            } catch (e) {
+                alert("WTF " + JSON.stringify(e));
+            }
+            try {
+                var newTrade = await inTrade.save();
+            } catch (e) {
+                alert("WTF " + JSON.stringify(e));
+            }
             context.state.remoteTrades[newTrade.id] = newTrade;
             Vue.set(context.state.trades, newTrade.id, {
                 id: newTrade.id,
                 ...newTrade.attributes
             });
             if (currentCount + 1 !== newTrade.get('counter')) {
-                return Promise.resolve(false);
+                return Promise.resolve([
+                    false,
+                    false
+                ]);
             }
             return Promise.resolve(newTrade);
         }

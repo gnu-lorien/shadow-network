@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "devstart": "nodemon -w cloud parse-server.js",
     "start": "node parse-server.js",
-    "test:unit": "vue-cli-service test:unit"
+    "test:unit": "vue-cli-service test:unit -w"
   },
   "dependencies": {
     "bootstrap-vue": "^2.0.0-rc.19",
