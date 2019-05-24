@@ -3,6 +3,7 @@ import { shallowMount } from '@vue/test-utils'
 import HelloWorld from '@/components/HelloWorld.vue'
 import Parse from 'parse'
 import store from '@/store.js'
+import Trade from '@/models/trade.js';
 
 describe('member/Trade.vue', () => {
     let themId, meId;
@@ -80,7 +81,7 @@ describe('member/Trade.vue', () => {
         expect(remoteTrade.get('meResources')).to.have.lengthOf(1);
     });
 
-    it("synchronizes me and them", async () => {
+    it("synchronizes out of band updates", async () => {
         let localTrade, remoteTrade;
         [localTrade, remoteTrade] = await store.dispatch('initiateTradeWith', {
             themId: themId,
@@ -118,22 +119,22 @@ describe('member/Trade.vue', () => {
         expect(myLocalTrade.counter).to.equal(2);
         expect(myLocalTrade.meResources).to.be.an('array').that.includes("aoeuaoeu");
         expect(myLocalTrade.meResources).to.have.lengthOf(1);
-        expect(myRemoteTrade).to.be.an('object');
-        expect(myRemoteTrade.get('counter')).to.equal(2);
-        expect(myRemoteTrade.get('meResources')).to.be.an('array').that.includes("aoeuaoeu");
-        expect(myRemoteTrade.get('meResources')).to.have.lengthOf(1);
+
+        let outOfBandTrade = await new Parse.Query(Trade).get(localTrade.id);
+        outOfBandTrade.increment('counter', 5);
+        outOfBandTrade = await outOfBandTrade.save();
         [myLocalTrade, myRemoteTrade] = await store.dispatch('addResourceToTrade', {
             tradeId: localTrade.id,
             resourceId: "disnorenun",
             memberId: meId
         });
         expect(myLocalTrade).to.be.an('object');
-        expect(myLocalTrade.counter).to.equal(4);
+        expect(myLocalTrade.counter).to.equal(4 + 5);
         expect(myLocalTrade.meResources).to.be.an('array').that.includes("disnorenun");
         expect(myLocalTrade.meResources).to.be.an('array').that.includes("aoeuaoeu");
-        expect(myLocalTrade.meResources).to.have.lengthOf(1);
+        expect(myLocalTrade.meResources).to.have.lengthOf(2);
         expect(myRemoteTrade).to.be.an('object');
-        expect(myRemoteTrade.get('counter')).to.equal(2);
+        expect(myRemoteTrade.get('counter')).to.equal(4 + 5);
         expect(myRemoteTrade.get('meResources')).to.be.an('array').that.includes("disnorenun");
         expect(myRemoteTrade.get('meResources')).to.be.an('array').that.includes("aoeuaoeu");
         expect(myRemoteTrade.get('meResources')).to.have.lengthOf(2);

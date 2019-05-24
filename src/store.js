@@ -276,16 +276,8 @@ let TradingModule = {
         },
         async attemptUpdate(context, inTrade) {
             let currentCount = inTrade.get('counter');
-            try {
-                inTrade.increment('counter');
-            } catch (e) {
-                alert("WTF " + JSON.stringify(e));
-            }
-            try {
-                var newTrade = await inTrade.save();
-            } catch (e) {
-                alert("WTF " + JSON.stringify(e));
-            }
+            inTrade.increment('counter');
+            let newTrade = await inTrade.save();
             context.state.remoteTrades[newTrade.id] = newTrade;
             Vue.set(context.state.trades, newTrade.id, {
                 id: newTrade.id,
