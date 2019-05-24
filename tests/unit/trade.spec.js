@@ -100,70 +100,18 @@ describe('member/Trade.vue', () => {
         expect(result.me.remote.get('resources')).to.have.lengthOf(1);
     });
 
-    it("synchronizes out of band updates", async () => {
-        let result;
-        result = await store.dispatch('initiateTradeWith', {
+    it("can't change other side's resources", async () => {
+        let result = await store.dispatch('initiateTradeWith', {
             themId: themId,
             meId: meId
         });
-        expect(result.me.local.resources).to.be.an('array').of.length(0);
-        expect(result.me.remote.get('resources')).to.be.an('array').of.length(0);
-        result = await store.dispatch('addResourceToTrade', {
-            syncId: result.sync.id,
-            resourceId: "aoeuaoeu",
-            memberId: meId
-        });
-        expect(result).to.be.an('object');
-        expect(result.me).to.be.an('object');
-        expect(result.me.local).to.be.an('object');
-        expect(result.me.remote).to.be.an('object');
-        expect(result.me.local.counter).to.equal(2);
-        expect(result.me.local.resources).to.be.an('array').that.includes("aoeuaoeu");
-        expect(result.me.local.resources).to.have.lengthOf(1);
-        expect(result.me.remote.get('counter')).to.equal(2);
-        expect(result.me.remote.get('resources')).to.be.an('array').that.includes("aoeuaoeu");
-        expect(result.me.remote.get('resources')).to.have.lengthOf(1);
-        let themResult = await store.dispatch('addResourceToTrade', {
-            syncId: result.sync.id,
-            resourceId: "1234stahoeu124",
-            memberId: themId
-        });
-        expect(themResult).to.be.an('object');
-        expect(themResult.me).to.be.an('object');
-        expect(themResult.me.local).to.be.an('object');
-        expect(themResult.me.remote).to.be.an('object');
-        expect(themResult.me.local.counter).to.equal(3);
-        expect(themResult.me.local.resources).to.be.an('array').that.includes("1234stahoeu124");
-        expect(themResult.me.local.resources).to.have.lengthOf(1);
-        expect(themResult.me.remote.get('counter')).to.equal(3);
-        expect(themResult.me.remote.get('themResources')).to.be.an('array').that.includes("1234stahoeu124");
-        expect(themResult.me.remote.get('themResources')).to.have.lengthOf(1);
-        expect(result.me.local.counter).to.equal(2);
-        expect(result.me.local.resources).to.be.an('array').that.includes("aoeuaoeu");
-        expect(result.me.local.resources).to.have.lengthOf(1);
+        try {
+            result.them.remote.increment('counter');
+            await result.them.remote.save();
+            expect.fail("Allowed me to save the other remote object");
+        } catch (e) {
 
-        let outOfBandTrade = await new Parse.Query(Trade).get(localTrade.id);
-        outOfBandTrade.increment('counter', 5);
-        outOfBandTrade = await outOfBandTrade.save();
-        [myLocalTrade, myRemoteTrade] = await store.dispatch('addResourceToTrade', {
-            tradeId: localTrade.id,
-            resourceId: "disnorenun",
-            memberId: meId
-        });
-        expect(myLocalTrade).to.be.an('object');
-        expect(myLocalTrade.counter).to.equal(4 + 5);
-        expect(myLocalTrade.meResources).to.be.an('array').that.includes("disnorenun");
-        expect(myLocalTrade.meResources).to.be.an('array').that.includes("aoeuaoeu");
-        expect(myLocalTrade.meResources).to.have.lengthOf(2);
-        expect(myRemoteTrade).to.be.an('object');
-        expect(myRemoteTrade.get('counter')).to.equal(4 + 5);
-        expect(myRemoteTrade.get('meResources')).to.be.an('array').that.includes("disnorenun");
-        expect(myRemoteTrade.get('meResources')).to.be.an('array').that.includes("aoeuaoeu");
-        expect(myRemoteTrade.get('meResources')).to.have.lengthOf(2);
-        expect(myLocalTrade.themResources).to.be.an('array').that.includes("1234stahoeu124");
-        expect(myLocalTrade.themResources).to.have.lengthOf(1);
-        expect(myRemoteTrade.get('themResources')).to.be.an('array').that.includes("1234stahoeu124");
-        expect(myRemoteTrade.get('themResources')).to.have.lengthOf(1);
+        }
     });
 
     it("can get all active trades", async () => {
