@@ -5,6 +5,8 @@ import Member from '@/models/member.js'
 import Resource from '@/models/resource.js';
 import Component from '@/models/component.js';
 import Trade from '@/models/trade.js';
+import TradeSync from '@/models/tradesync.js';
+import TradeOffer from '@/models/tradeoffer.js';
 
 Vue.use(Vuex)
 
@@ -214,65 +216,113 @@ let ComponentsModule = {
 
 let TradingModule = {
     state: {
+        remoteSyncs: {},
+        offers: {},
+        remoteOffers: {},
         trades: {},
         remoteTrades: {}
     },
     mutations: {
-
+        setOffer(state, offer) {
+            state.remoteOffers[offer.id] = offer;
+            Vue.set(state.offers, offer.id, {
+                id: offer.id,
+                ...offer.attributes
+            });
+        }
     },
     actions: {
         async initiateTradeWith(context, { meId, themId }) {
+            let sync = new TradeSync({
+                counter: 1,
+            });
+            // RAS TODO Set the ACL so that only the server can modify it
+            sync = await sync.save();
+            context.state.remoteSyncs[sync.id] = sync;
+
             let me = await new Parse.Query(Member).get(meId);
             let them = await new Parse.Query(Member).get(themId);
-            let trade = new Trade({
-                meId: me,
-                themId: them,
-                meResources: [],
-                themResources: [],
-                counter: 1
+            let meUser = Parse.User.current();
+            let themUser = new Parse.User({id: them.get('owner').id});
+
+            let offer = new TradeOffer({
+                resources: [],
+                counter: 1,
+                member: me,
+                approved: 0
             });
-            trade = await trade.save();
-            Vue.set(context.state.trades, trade.id, {
-                id: trade.id,
-                ...trade.attributes
+            let acl = new Parse.ACL();
+            acl.setReadAccess(meUser, true);
+            acl.setWriteAccess(meUser, true);
+            acl.setReadAccess(themUser.id, true);
+            offer.setACL(acl);
+            offer = await offer.save();
+            context.commit('setOffer', offer);
+            let themOffer = new TradeOffer({
+                resources: [],
+                counter: 1,
+                member: them,
+                approved: 0
             });
-            context.state.remoteTrades[trade.id] = trade;
-            return Promise.resolve([
-                context.state.trades[trade.id],
-                context.state.remoteTrades[trade.id]
-            ]);
+            acl = new Parse.ACL();
+            acl.setReadAccess(themUser, true);
+            acl.setWriteAccess(themUser, true);
+            acl.setReadAccess(meUser.id, true);
+            themOffer.setACL(acl);
+            themOffer = await themOffer.save();
+            context.commit('setOffer', themOffer);
+
+            sync.set({
+                'left': offer,
+                'right': themOffer
+            });
+            sync = await sync.save();
+
+            return Promise.resolve({
+                sync: sync,
+                me: {
+                    local: context.state.offers[offer.id],
+                    remote: context.state.remoteOffers[offer.id]
+                },
+                them: {
+                    local: context.state.offers[themOffer.id],
+                    remote: context.state.remoteOffers[themOffer.id]
+                }
+            });
         },
-        async addResourceToTrade(context, { tradeId, resourceId, memberId }) {
-            const trade = context.state.trades[tradeId];
-            if (trade === undefined) {
-                return Promise.reject({message: "No trade matching " + tradeId});
+        async addResourceToTrade(context, { syncId, resourceId, memberId }) {
+            let sync = context.state.remoteSyncs[syncId];
+            if (sync === undefined) {
+                sync = await new Parse.Query(TradeSync).get(syncId);
             }
 
-            let resourceIds = trade.meResources;
-            let resourceKey = "meResources";
-            if (memberId !== trade.meId.id) {
-                resourceIds = trade.themResources;
-                resourceKey = "themResources";
+            let offer = sync.get('left');
+            if (offer.get('member').id !== memberId) {
+                offer = sync.get('right');
+                if (offer.get('member').id !== memberId) {
+                    throw {message: "Member " + memberId + " not involved in selected trade " + syncId}
+                }
             }
+            let resourceIds = offer.get('resources');
             resourceIds = resourceIds.filter((e) => {
                 return e !== resourceId;
             });
             resourceIds = [resourceId].concat(resourceIds);
-            Vue.set(context.state.trades[tradeId], resourceKey, resourceIds);
-            context.state.remoteTrades[tradeId].set(resourceKey, resourceIds);
+            offer.set('resources', resourceIds);
+            offer.increment('counter');
+            offer = await offer.save();
+            context.commit('setOffer', offer);
 
-            const result = await context.dispatch('attemptUpdate', context.state.remoteTrades[tradeId]);
-            if (result[0] === false) {
-                return context.dispatch('addResourceToTrade', {
-                    tradeId: tradeId,
-                    resourceId: resourceId,
-                    memberId: memberId
-                });
-            }
-            return Promise.resolve([
-                context.state.trades[result.id],
-                context.state.remoteTrades[result.id]
-            ]);
+            sync.increment('counter');
+            await sync.save();
+
+            return Promise.resolve({
+                sync: sync,
+                me: {
+                    local: context.state.offers[offer.id],
+                    remote: context.state.remoteOffers[offer.id]
+                }
+            });
         },
         async attemptUpdate(context, inTrade) {
             let currentCount = inTrade.get('counter');
