@@ -55,14 +55,8 @@
                     }
                 });
             },
-            remove() {
-                this.$store.dispatch('destroyResource', this.$props.resourceId)
-                    .then(() => {
-                        this.resource = {
-                            id: "",
-                            name: ""
-                        }
-                    })
+            async remove() {
+                await this.$store.dispatch('destroyResource', this.$props.resourceId);
             }
         }
     }
