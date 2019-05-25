@@ -114,9 +114,37 @@ describe('member/Trade.vue', () => {
         }
     });
 
+    it("can change my resources", async () => {
+        let result = await store.dispatch('initiateTradeWith', {
+            themId: themId,
+            meId: meId
+        });
+        result.me.remote.increment('counter');
+        await result.me.remote.save();
+    });
+
+
     it("can get all active trades", async () => {
+        expect.fail("Not implemented.");
     });
 
     it("can add to trade without having initiated it", async () => {
+        expect.fail("Not implemented.");
+    });
+
+    it ("can't add another person's resource", async () => {
+        expect.fail("Not implemented.");
+    });
+
+    it ("can only add your resources", async () => {
+        expect.fail("Not implemented.");
+    });
+
+    it ("can't add non-existent resources", async () => {
+        expect.fail("Not implemented.");
+    });
+
+    it ("can't change the sync count yourself", async () => {
+        expect.fail("Not implemented.");
     });
 });
