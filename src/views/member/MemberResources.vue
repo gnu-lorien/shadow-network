@@ -34,23 +34,12 @@
             fetch() {
                 this.$store.dispatch('loadOrUseCurrentMemberResourceIds');
             },
-            add() {
-                const member = new Resource();
-                const acl = new Parse.ACL();
-                acl.setWriteAccess(Parse.User.current(), true);
-                acl.setPublicReadAccess( true);
-                member.setACL(acl);
-
-                member.set('member', new Member({id: this.$props.memberId}));
-                member.set('name', 'Unknown name');
-                member.save()
-                    .then((resource) => {
-                        this.$store.commit('setResource', resource);
-                        this.$store.commit('addCurrentMemberResourceId', resource.id);
-                    })
-                    .catch(function(e) {
-                        alert("Failed to create new resource " + e.message);
-                    });
+            async add() {
+                try {
+                    await this.$store.dispatch('createNewCurrentMemberResource', this.$props.memberId);
+                } catch (e) {
+                    alert("Failed to create new resource " + e.message);
+                }
             }
         },
     }

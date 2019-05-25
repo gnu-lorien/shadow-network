@@ -136,6 +136,23 @@ let ResourcesModule = {
 
             context.state.remoteResources[resourceId].set('name', context.state.resources[resourceId].name);
             return context.state.remoteResources[resourceId].save();
+        },
+        async createNewCurrentMemberResource(context, memberId) {
+            const member = new Resource();
+            const acl = new Parse.ACL();
+            acl.setReadAccess(Parse.User.current(), true);
+            acl.setWriteAccess(Parse.User.current(), true);
+            acl.setRoleReadAccess('gamemaster', true);
+            acl.setRoleWriteAccess('gamemaster', true);
+            acl.setPublicReadAccess(false);
+            acl.setPublicWriteAccess(false);
+            member.setACL(acl);
+
+            member.set('member', new Member({id: memberId}));
+            member.set('name', 'Unknown name');
+            const remote = await member.save();
+            context.store.commit('setResource', remote);
+            context.store.commit('addCurrentMemberResourceId', remote.id);
         }
     }
 };
