@@ -170,6 +170,43 @@ describe('member/Trade.vue', () => {
         expect(result.sync.get('counter')).to.equal(1);
     });
 
+    it ("can't add another person's resource", async () => {
+        let result;
+        result = await store.dispatch('initiateTradeWith', {
+            themId: themId,
+            meId: meId
+        });
+        expect(result.me.local.resources).to.be.an('array').of.length(0);
+        expect(result.me.remote.get('resources')).to.be.an('array').of.length(0);
+        let {remote: resource} = await store.dispatch('createNewCurrentMemberResource', meId);
+        let acl = new Parse.ACL();
+        acl.setPublicWriteAccess(false);
+        acl.setPublicReadAccess(false);
+        resource.setACL(acl);
+        resource = await resource.save();
+        try {
+            result = await store.dispatch('addResourceToTrade', {
+                syncId: result.sync.id,
+                resourceId: resource.id,
+                memberId: meId
+            });
+            expect.fail("Shouldn't have let me complete this dispatch.");
+        } catch (e) {
+            expect(true).to.equal(true);
+        }
+        expect(result).to.be.an('object');
+        expect(result.me).to.be.an('object');
+        expect(result.me.local).to.be.an('object');
+        expect(result.me.remote).to.be.an('object');
+        expect(result.me.local.counter).to.equal(1);
+        expect(result.me.local.resources).to.be.an('array').that.does.not.include(resource.id);
+        expect(result.me.local.resources).to.have.lengthOf(0);
+        expect(result.me.remote.get('counter')).to.equal(1);
+        expect(result.me.remote.get('resources')).to.be.an('array').that.does.not.include(resource.id);
+        expect(result.me.remote.get('resources')).to.have.lengthOf(0);
+        expect(result.sync.get('counter')).to.equal(1);
+    });
+
     /*
     it("can get all active trades", async () => {
         expect.fail("Not implemented.");
@@ -179,14 +216,10 @@ describe('member/Trade.vue', () => {
         expect.fail("Not implemented.");
     });
 
-    it ("can't add another person's resource", async () => {
-        expect.fail("Not implemented.");
-    });
 
     it ("can only add your resources", async () => {
         expect.fail("Not implemented.");
     });
-
 
     it ("can't change the sync count yourself", async () => {
         expect.fail("Not implemented.");
