@@ -60,7 +60,7 @@ describe('member/Trade.vue', () => {
         checkRemote(result.them.remote);
     });
 
-    it("can't add the same resource twice", async () => {
+    it("can add a resource", async () => {
         let result;
         result = await store.dispatch('initiateTradeWith', {
             themId: themId,
@@ -83,6 +83,19 @@ describe('member/Trade.vue', () => {
         expect(result.me.remote.get('counter')).to.equal(2);
         expect(result.me.remote.get('resources')).to.be.an('array').that.includes("aoeuaoeu");
         expect(result.me.remote.get('resources')).to.have.lengthOf(1);
+    });
+
+    it("can't add the same resource twice", async () => {
+        let result;
+        result = await store.dispatch('initiateTradeWith', {
+            themId: themId,
+            meId: meId
+        });
+        result = await store.dispatch('addResourceToTrade', {
+            syncId: result.sync.id,
+            resourceId: "aoeuaoeu",
+            memberId: meId
+        });
         result = await store.dispatch('addResourceToTrade', {
             syncId: result.sync.id,
             resourceId: "aoeuaoeu",

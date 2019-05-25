@@ -272,8 +272,7 @@ let TradingModule = {
             offer = await offer.save();
             context.commit('setOffer', offer);
 
-            sync.increment('counter');
-            await sync.save();
+            await sync.fetch();
 
             return Promise.resolve({
                 sync: sync,
@@ -311,3 +310,4 @@ export default new Vuex.Store({
         trading: TradingModule
     }
 });
+
