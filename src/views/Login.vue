@@ -41,7 +41,7 @@
 </template>
 
 <script>
-    /* global Parse */
+    import Parse from 'parse';
     export default {
         name: "Login",
         data: function () {
