@@ -123,7 +123,7 @@ describe('member/Trade.vue', () => {
         await result.me.remote.save();
     });
 
-
+    /*
     it("can get all active trades", async () => {
         expect.fail("Not implemented.");
     });
@@ -147,4 +147,5 @@ describe('member/Trade.vue', () => {
     it ("can't change the sync count yourself", async () => {
         expect.fail("Not implemented.");
     });
+     */
 });

@@ -233,62 +233,21 @@ let TradingModule = {
     },
     actions: {
         async initiateTradeWith(context, { meId, themId }) {
-            let sync = new TradeSync({
-                counter: 1,
-            });
-            // RAS TODO Set the ACL so that only the server can modify it
-            sync = await sync.save();
-            context.state.remoteSyncs[sync.id] = sync;
-
-            let me = await new Parse.Query(Member).get(meId);
-            let them = await new Parse.Query(Member).get(themId);
-            let meUser = Parse.User.current();
-            let themUser = new Parse.User({id: them.get('owner').id});
-
-            let offer = new TradeOffer({
-                resources: [],
-                counter: 1,
-                member: me,
-                approved: 0
-            });
-            let acl = new Parse.ACL();
-            acl.setReadAccess(meUser, true);
-            acl.setWriteAccess(meUser, true);
-            acl.setReadAccess(themUser.id, true);
-            offer.setACL(acl);
-            offer = await offer.save();
-            context.commit('setOffer', offer);
-            let themOffer = new TradeOffer({
-                resources: [],
-                counter: 1,
-                member: them,
-                approved: 0
-            });
-            acl = new Parse.ACL();
-            acl.setReadAccess(themUser, true);
-            acl.setWriteAccess(themUser, true);
-            acl.setReadAccess(meUser.id, true);
-            themOffer.setACL(acl);
-            themOffer = await themOffer.save();
-            context.commit('setOffer', themOffer);
-
-            sync.set({
-                'left': offer,
-                'right': themOffer
-            });
-            sync = await sync.save();
-
+            let result = await Parse.Cloud.run('initiateTradeWith', { meId, themId });
+            context.state.remoteSyncs[result.sync.id] = result.sync;
+            context.commit('setOffer', result.me);
+            context.commit('setOffer', result.them);
             return Promise.resolve({
-                sync: sync,
+                sync: result.sync,
                 me: {
-                    local: context.state.offers[offer.id],
-                    remote: context.state.remoteOffers[offer.id]
+                    local: context.state.offers[result.me.id],
+                    remote: context.state.remoteOffers[result.me.id]
                 },
                 them: {
-                    local: context.state.offers[themOffer.id],
-                    remote: context.state.remoteOffers[themOffer.id]
+                    local: context.state.offers[result.them.id],
+                    remote: context.state.remoteOffers[result.them.id]
                 }
-            });
+    });
         },
         async addResourceToTrade(context, { syncId, resourceId, memberId }) {
             let sync = context.state.remoteSyncs[syncId];
