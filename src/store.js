@@ -247,7 +247,7 @@ let TradingModule = {
                     local: context.state.offers[result.them.id],
                     remote: context.state.remoteOffers[result.them.id]
                 }
-    });
+            });
         },
         async addResourceToTrade(context, { syncId, resourceId, memberId }) {
             let sync = context.state.remoteSyncs[syncId];

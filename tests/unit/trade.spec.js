@@ -3,7 +3,6 @@ import { shallowMount } from '@vue/test-utils'
 import HelloWorld from '@/components/HelloWorld.vue'
 import Parse from 'parse'
 import store from '@/store.js'
-import Trade from '@/models/trade.js';
 
 describe('member/Trade.vue', () => {
     let themId, meId;
@@ -83,6 +82,7 @@ describe('member/Trade.vue', () => {
         expect(result.me.remote.get('counter')).to.equal(2);
         expect(result.me.remote.get('resources')).to.be.an('array').that.includes("aoeuaoeu");
         expect(result.me.remote.get('resources')).to.have.lengthOf(1);
+        expect(result.sync.get('counter')).to.equal(2);
     });
 
     it("can't add the same resource twice", async () => {
@@ -111,6 +111,7 @@ describe('member/Trade.vue', () => {
         expect(result.me.remote.get('counter')).to.equal(3);
         expect(result.me.remote.get('resources')).to.be.an('array').that.includes("aoeuaoeu");
         expect(result.me.remote.get('resources')).to.have.lengthOf(1);
+        expect(result.sync.get('counter')).to.equal(3);
     });
 
     it("can't change other side's resources", async () => {
