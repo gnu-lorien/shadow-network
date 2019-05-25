@@ -8,9 +8,7 @@
 </template>
 
 <script>
-    /* global Parse */
-    import Resource from '@/models/resource.js';
-    //import Vue from 'vue';
+    import Parse from 'parse';
     import ResourceSummary from '@/components/ResourceSummary.vue';
     import CurrentMember from '@/mixins/CurrentMember.js'
     import Member from '@/models/member.js'

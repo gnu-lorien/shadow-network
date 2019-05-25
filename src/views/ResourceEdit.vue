@@ -22,7 +22,7 @@
 </template>
 
 <script>
-    /* global Parse */
+    import Parse from 'parse';
     import Component from '@/models/component.js';
     import ComponentSummary from '@/components/ComponentSummary.vue';
     export default {
