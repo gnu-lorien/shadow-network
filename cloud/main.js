@@ -69,8 +69,6 @@ Parse.Cloud.define('initiateTradeWith', async (request) => {
 });
 
 Parse.Cloud.beforeSave('TradeOffer', async (request) => {
-    let obj = request.object;
-    let tradesync = request.object.get('tradesync');
     let syncId = request.object.get('tradesync').id;
     let sync = await new Parse.Query(TradeSync).get(syncId, {useMasterKey: true});
     if (sync.get('left') === undefined) {
