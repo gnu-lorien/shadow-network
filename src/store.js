@@ -148,11 +148,16 @@ let ResourcesModule = {
             acl.setPublicWriteAccess(false);
             member.setACL(acl);
 
+
             member.set('member', new Member({id: memberId}));
             member.set('name', 'Unknown name');
             const remote = await member.save();
             context.commit('setResource', remote);
             context.commit('addCurrentMemberResourceId', remote.id);
+            return Promise.resolve({
+                remote: remote,
+                local: context.state.resources[remote.id]
+            });
         }
     }
 };
@@ -286,8 +291,14 @@ let TradingModule = {
             resourceIds = [resourceId].concat(resourceIds);
             offer.set('resources', resourceIds);
             offer.increment('counter');
-            offer = await offer.save();
-            context.commit('setOffer', offer);
+            try {
+                offer = await offer.save();
+                context.commit('setOffer', offer);
+            } catch (e) {
+                offer = await offer.fetch();
+                context.commit('setOffer', offer);
+                throw e;
+            }
 
             await sync.fetch();
 
