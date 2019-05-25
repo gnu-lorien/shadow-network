@@ -67,7 +67,7 @@ describe('member/Trade.vue', () => {
         });
         expect(result.me.local.resources).to.be.an('array').of.length(0);
         expect(result.me.remote.get('resources')).to.be.an('array').of.length(0);
-        const {remote: resource} = await store.dispatch('createNewCurrentMemberResource', meId);
+        const {remote: resource} = await store.dispatch('createNewResource', meId);
         result = await store.dispatch('addResourceToTrade', {
             syncId: result.sync.id,
             resourceId: resource.id,
@@ -92,7 +92,7 @@ describe('member/Trade.vue', () => {
             themId: themId,
             meId: meId
         });
-        const {remote: resource} = await store.dispatch('createNewCurrentMemberResource', meId);
+        const {remote: resource} = await store.dispatch('createNewResource', meId);
         result = await store.dispatch('addResourceToTrade', {
             syncId: result.sync.id,
             resourceId: resource.id,
@@ -178,7 +178,7 @@ describe('member/Trade.vue', () => {
         });
         expect(result.me.local.resources).to.be.an('array').of.length(0);
         expect(result.me.remote.get('resources')).to.be.an('array').of.length(0);
-        let {remote: resource} = await store.dispatch('createNewCurrentMemberResource', meId);
+        let {remote: resource} = await store.dispatch('createNewResource', meId);
         let acl = new Parse.ACL();
         acl.setPublicWriteAccess(false);
         acl.setPublicReadAccess(false);
@@ -206,6 +206,53 @@ describe('member/Trade.vue', () => {
         expect(result.me.remote.get('resources')).to.have.lengthOf(0);
         expect(result.sync.get('counter')).to.equal(1);
     });
+    it("can complete a full trade from another to me", async () => {
+        let result;
+        result = await store.dispatch('initiateTradeWith', {
+            themId: themId,
+            meId: meId
+        });
+        let {remote: resource} = await store.dispatch('createNewResource', themId);
+        console.log("Why is it like this?");
+        await Parse.User.logOut();
+        console.log("Why is it like this?");
+        let user = await Parse.User.logIn(
+            process.env.VUE_APP_TEST_THEM_USERNAME,
+            process.env.VUE_APP_TEST_THEM_PASSWORD);
+        console.log("Why is it like this?");
+        result = await store.dispatch('addResourceToTrade', {
+            syncId: result.sync.id,
+            resourceId: resource.id,
+            memberId: themId
+        });
+        console.log("Why is it like this?");
+        await store.dispatch('acceptTradeAs', {
+            syncId: result.sync.id,
+            memberId: themId
+        });
+        console.log("Why is it like this?");
+        await Parse.User.logOut();
+        console.log("Why is it like this?");
+        await Parse.User.logIn(
+            process.env.VUE_APP_TEST_USERNAME,
+            process.env.VUE_APP_TEST_PASSWORD);
+        console.log("Why is it like this?");
+        await store.dispatch('acceptTradeAs', {
+            syncId: result.sync.id,
+            memberId: meId
+        });
+        console.log("Why is it like this?");
+        await store.dispatch('completeTrade', {
+            syncId: result.sync.id
+        });
+        console.log("Why is it like this?");
+        await store.dispatch('loadOrUseCurrentMemberResourceIds');
+        console.log("Why is it like this?");
+        expect(store.state.member.resourceIds).to.be.an('array').that.includes(resource.id);
+
+        let resourceIds = store.dispatch('loadOrUseResourceIds', themId);
+        expect(resourceIds).to.be.an('array').that.does.not.include(resource.id);
+    });
 
     /*
     it("can get all active trades", async () => {
@@ -215,7 +262,6 @@ describe('member/Trade.vue', () => {
     it("can add to trade without having initiated it", async () => {
         expect.fail("Not implemented.");
     });
-
 
     it ("can only add your resources", async () => {
         expect.fail("Not implemented.");

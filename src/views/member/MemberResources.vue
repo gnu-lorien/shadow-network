@@ -34,7 +34,7 @@
             },
             async add() {
                 try {
-                    await this.$store.dispatch('createNewCurrentMemberResource', this.$props.memberId);
+                    await this.$store.dispatch('createNewCurrentMemberResource');
                 } catch (e) {
                     alert("Failed to create new resource " + e.message);
                 }

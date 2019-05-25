@@ -137,27 +137,31 @@ let ResourcesModule = {
             context.state.remoteResources[resourceId].set('name', context.state.resources[resourceId].name);
             return context.state.remoteResources[resourceId].save();
         },
-        async createNewCurrentMemberResource(context, memberId) {
-            const member = new Resource();
+        async createNewResource(context, memberId) {
+            const member = await new Parse.Query(Member).get(memberId);
+            const memberUser = new Parse.User({id: member.get('owner').id});
+            const resource = new Resource();
             const acl = new Parse.ACL();
-            acl.setReadAccess(Parse.User.current(), true);
-            acl.setWriteAccess(Parse.User.current(), true);
+            acl.setReadAccess(memberUser, true);
+            acl.setWriteAccess(memberUser, true);
             acl.setRoleReadAccess('gamemaster', true);
             acl.setRoleWriteAccess('gamemaster', true);
             acl.setPublicReadAccess(false);
             acl.setPublicWriteAccess(false);
-            member.setACL(acl);
+            resource.setACL(acl);
 
-
-            member.set('member', new Member({id: memberId}));
-            member.set('name', 'Unknown name');
-            const remote = await member.save();
+            resource.set('member', new Member({id: memberId}));
+            resource.set('name', 'Unknown name');
+            const remote = await resource.save();
             context.commit('setResource', remote);
             context.commit('addCurrentMemberResourceId', remote.id);
             return Promise.resolve({
                 remote: remote,
                 local: context.state.resources[remote.id]
             });
+        },
+        async createNewCurrentMemberResource(context) {
+            return context.dispatch('createNewResource', context.rootState.member.member.id);
         }
     }
 };
@@ -326,6 +330,24 @@ let TradingModule = {
                 ]);
             }
             return Promise.resolve(newTrade);
+        },
+        async acceptTradeAs(context, {syncId, memberId}) {
+            let sync = context.state.remoteSyncs[syncId];
+            if (sync === undefined) {
+                throw {message: "Didn't already load TradeSync " + syncId + " no way to validate its contents."};
+            }
+
+            let offer = sync.get('left');
+            if (offer.get('member').id !== memberId) {
+                offer = sync.get('right');
+                if (offer.get('member').id !== memberId) {
+                    throw {message: "Member " + memberId + " not involved in selected trade " + syncId}
+                }
+            }
+
+            offer.set('approved', sync.get('counter') + 1);
+            await offer.save();
+            await sync.fetch();
         }
     }
 };
