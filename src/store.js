@@ -151,8 +151,8 @@ let ResourcesModule = {
             member.set('member', new Member({id: memberId}));
             member.set('name', 'Unknown name');
             const remote = await member.save();
-            context.store.commit('setResource', remote);
-            context.store.commit('addCurrentMemberResourceId', remote.id);
+            context.commit('setResource', remote);
+            context.commit('addCurrentMemberResourceId', remote.id);
         }
     }
 };
