@@ -1,6 +1,7 @@
 <template>
     <div>
         <button v-on:click="initiatingATrade">Initiate a Trade</button>
+        <button v-on:click="declineAllTrades">Decline All Trades</button>
         <div v-if="initiating">
             <member-summary class="row" v-for="id in members" :key="id" :memberId="id" @member-selected="select"/>
         </div>
@@ -36,7 +37,13 @@
         },
         methods: {
             async fetch() {
-                this.syncIds = await this.$store.dispatch('loadOrUseTradeIds', {memberId: this.$props.memberId});
+                this.syncIds = await this.$store.dispatch('loadOrUseTradeIds',{
+                    memberId: this.$props.memberId,
+                    filters: {
+                        noStarted: true,
+                        noCompleted: true
+                    }
+                });
             },
             async initiatingATrade() {
                 let user = Parse.User.current();
@@ -68,6 +75,12 @@
                         syncId: syncId
                     }
                 });
+            },
+            async declineAllTrades() {
+                await this.$store.dispatch('declineTrades', {
+                    syncIds: this.syncIds
+                });
+                await this.fetch();
             }
         }
     }

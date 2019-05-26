@@ -172,3 +172,23 @@ Parse.Cloud.define('completeTrade', async (request) => {
     await giveResourcesTo(right.get('resources'), left);
     await sync.save({started: true, completed: true}, {useMasterKey: true});
 });
+
+Parse.Cloud.define('declineTrades', async (request) => {
+    for (let syncId of request.params.syncIds) {
+        let sync = await new Parse.Query(TradeSync).get(syncId, {useMasterKey: true});
+
+        if (sync.get('completed')) {
+            continue;
+        }
+
+        if (sync.get('started')) {
+            continue;
+        }
+
+        await sync.save({
+            started: false,
+            completed: true,
+            declined: true
+        }, {useMasterKey: true});
+    }
+});

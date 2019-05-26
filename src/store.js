@@ -268,6 +268,16 @@ let TradingModule = {
             }).select("tradesync");
             let offers = await q.find();
             let syncIds = offers.map((offer) => { return offer.get('tradesync').id});
+            if (filters) {
+                let syncsq = new Parse.Query(TradeSync)
+                    .notEqualTo("started", filters.noStarted)
+                    .notEqualTo("completed", filters.noCompleted);
+                syncIds = [];
+                await syncsq.each((sync) => {
+                    syncIds.push(sync.id);
+                    context.state.remoteSyncs[sync.id] = sync;
+                });
+            }
             return Promise.resolve(syncIds);
         },
         async loadOrUseTrade(context, {memberId, syncId}) {
@@ -445,6 +455,17 @@ let TradingModule = {
                 left: left,
                 right: right
             });
+        },
+        async declineTrades(context, params) {
+            let ids = params.syncIds;
+            while (0 !== ids.length) {
+                let batchLimit = parseInt(process.env.VUE_APP_PARSE_BATCH_SIZE) || 10;
+                let thispass = ids.slice(0, batchLimit);
+                ids = ids.slice(batchLimit);
+                await Parse.Cloud.run('declineTrades', {
+                    syncIds: thispass
+                });
+            }
         }
     }
 };
