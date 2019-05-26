@@ -11,6 +11,7 @@ import ComponentEdit from './views/ComponentEdit.vue'
 import MemberTrading from './views/member/Trading.vue'
 import MemberVault from './views/member/Vault.vue'
 import MemberProfile from './views/member/Profile.vue'
+import MemberTradeLanding from './views/member/TradeLanding.vue'
 import store from './store'
 
 Vue.use(Router)
@@ -96,6 +97,15 @@ const router = new Router({
                     component: MemberTrading,
                     meta: {
                         autoLoadMember: true,
+                    },
+                },
+                {
+                    path: 'trade/:syncId',
+                    name: 'memberTradeLanding',
+                    props: true,
+                    component: MemberTradeLanding,
+                    meta: {
+                        autoLoadMember: true
                     }
                 },
                 {

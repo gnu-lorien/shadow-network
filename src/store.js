@@ -270,6 +270,22 @@ let TradingModule = {
             let syncIds = offers.map((offer) => { return offer.get('tradesync').id});
             return Promise.resolve(syncIds);
         },
+        async loadOrUseTrade(context, {memberId, syncId}) {
+            let sync = await new Parse.Query(TradeSync).get(syncId);
+            let me = sync.get('left');
+            let them = sync.get('right');
+            if (me.get('member').id !== memberId) {
+                me = sync.get('right');
+                them = sync.get('right');
+            }
+            context.commit('setOffer', me);
+            context.commit('setOffer', them);
+            return Promise.resolve({
+                sync: sync,
+                me: me,
+                them: them
+            });
+        },
         async initiateTradeWith(context, { meId, themId }) {
             let result = await Parse.Cloud.run('initiateTradeWith', { meId, themId });
             context.state.remoteSyncs[result.sync.id] = result.sync;

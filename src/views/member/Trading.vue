@@ -5,7 +5,7 @@
             <member-summary class="row" v-for="id in members" :key="id" :memberId="id" @member-selected="select"/>
         </div>
         <b-list-group>
-            <b-list-group-item v-for="syncId in syncIds" :key="syncId">Trade: {{syncId}}</b-list-group-item>
+            <b-list-group-item v-for="syncId in syncIds" :key="syncId" @click="openTrade(syncId)">Trade: {{syncId}}</b-list-group-item>
         </b-list-group>
     </div>
 </template>
@@ -59,6 +59,15 @@
                 });
                 await this.fetch();
                 this.initiating = false;
+            },
+            openTrade(syncId) {
+                this.$router.push({
+                    name: 'memberTradeLanding',
+                    params: {
+                        memberId: this.$props.memberId,
+                        syncId: syncId
+                    }
+                });
             }
         }
     }
