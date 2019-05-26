@@ -272,11 +272,12 @@ let TradingModule = {
         },
         async loadOrUseTrade(context, {memberId, syncId}) {
             let sync = await new Parse.Query(TradeSync).get(syncId);
-            let me = sync.get('left');
-            let them = sync.get('right');
+            let them = await sync.get('left').fetch();
+            let me = await sync.get('right').fetch();
             if (me.get('member').id !== memberId) {
-                me = sync.get('right');
-                them = sync.get('right');
+                let tmp = me;
+                me = them;
+                them = tmp;
             }
             context.commit('setOffer', me);
             context.commit('setOffer', them);
