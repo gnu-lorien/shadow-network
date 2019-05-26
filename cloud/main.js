@@ -96,11 +96,79 @@ Parse.Cloud.beforeSave('TradeOffer', async (request) => {
     }
     if (sync.get('left').id !== request.object.id) {
         if (sync.get('right').id !== request.object.id) {
-            throw new Parse.Error("TradeOffer " + request.object.id + " is not part of TradeSync " + sync.id);
+            throw new Error("TradeOffer " + request.object.id + " is not part of TradeSync " + sync.id);
         }
     }
 
-    // Update the sync object
-    sync.increment('counter');
-    await sync.save(null, {useMasterKey: true});
+    // Only update the sync object if something meaningful to the trade changed
+    if (request.object.dirty("resources")) {
+        sync.increment('counter');
+        await sync.save(null, {useMasterKey: true});
+    }
+});
+
+async function takeResourceFromEverybody(resourceId) {
+    let resource = await new Parse.Query(Resource).get(resourceId, {useMasterKey: true});
+    let acl = new Parse.ACL();
+    acl.setPublicReadAccess(false);
+    acl.setPublicWriteAccess(false);
+    resource.setACL(acl);
+    return resource.save(null, {useMasterKey: true});
+}
+
+async function takeResourcesFromEverybody(resources) {
+    for (let resourceId of resources) {
+        await takeResourceFromEverybody(resourceId);
+    }
+}
+
+async function giveResourceTo(resourceId, offer) {
+    let resource = await new Parse.Query(Resource).get(resourceId, {useMasterKey: true});
+    const member = await new Parse.Query(Member).get(offer.get('member').id, {useMasterKey: true});
+    const user = new Parse.User({id: member.get('owner').id});
+    let acl = new Parse.ACL();
+    acl.setReadAccess(user, true);
+    acl.setWriteAccess(user, true);
+    acl.setRoleReadAccess('gamemaster', true);
+    acl.setRoleWriteAccess('gamemaster', true);
+    acl.setPublicReadAccess(false);
+    acl.setPublicWriteAccess(false);
+    resource.setACL(acl);
+    resource.set('member', member);
+
+    return resource.save(null, {useMasterKey: true});
+}
+
+async function giveResourcesTo(resources, offer) {
+    for (let resourceId of resources) {
+        await giveResourceTo(resourceId, offer);
+    }
+}
+
+Parse.Cloud.define('completeTrade', async (request) => {
+    let sync = await new Parse.Query(TradeSync).get(request.params.syncId, {useMasterKey: true});
+
+    if (sync.get('completed')) {
+        throw new Error(`Sync: ${sync.id} has already completed.`);
+    }
+
+    if (sync.get('started')) {
+        throw new Error(`Sync: ${sync.id} is in progress.`);
+    }
+
+    let right = await sync.get('right').fetch({useMasterKey: true});
+    if (sync.get('counter') !== right.get('approved')) {
+        throw new Error(`Sync: ${sync.id} right member ${right.id} has approved ${right.get('approved')} when ${sync.get('counter')} is needed`);
+    }
+
+    let left = await sync.get('left').fetch({useMasterKey: true});
+    if (sync.get('counter') !== left.get('approved')) {
+        throw new Error(`Sync: ${sync.id} left member ${left.id} has approved ${left.get('approved')} when ${sync.get('counter')} is needed`);
+    }
+
+    await sync.save({started: true, completed: false}, {useMasterKey: true});
+    await takeResourcesFromEverybody([...left.get('resources'), ...right.get('resources')]);
+    await giveResourcesTo(left.get('resources'), right);
+    await giveResourcesTo(right.get('resources'), left);
+    await sync.save({started: true, completed: true}, {useMasterKey: true});
 });

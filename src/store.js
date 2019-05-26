@@ -45,16 +45,8 @@ let MemberModule = {
                     context.commit('setCurrentMember', member);
                 });
         },
-        loadOrUseCurrentMemberResourceIds(context) {
-            const q = new Parse.Query(Resource).equalTo("member", {
-                __type: 'Pointer',
-                className: 'Member',
-                objectId: context.state.member.id
-            }).select("id");
-            return q.find()
-                .then((resources) => {
-                    context.state.resourceIds = resources.map(resource => resource.id);
-                });
+        async loadOrUseCurrentMemberResourceIds(context) {
+            context.state.resourceIds = await context.dispatch('loadOrUseResourceIds', context.state.member.id);
         },
         async updateAndSaveCurrentMember(context, newAttributes) {
             const q = new Parse.Query(Member);
@@ -97,6 +89,16 @@ let ResourcesModule = {
         }
     },
     actions: {
+        async loadOrUseResourceIds(context, memberId) {
+            const q = new Parse.Query(Resource).equalTo("member", {
+                __type: 'Pointer',
+                className: 'Member',
+                objectId: memberId
+            }).select("id");
+            let resources = await q.find();
+            let resourceIds = resources.map(resource => resource.id);
+            return Promise.resolve(resourceIds);
+        },
         loadOrUseResource(context, resourceId) {
             if (context.state.resources[resourceId] !== undefined) {
                 return Promise.resolve(context.state.resources[resourceId]);
@@ -149,6 +151,7 @@ let ResourcesModule = {
             acl.setPublicReadAccess(false);
             acl.setPublicWriteAccess(false);
             resource.setACL(acl);
+
 
             resource.set('member', new Member({id: memberId}));
             resource.set('name', 'Unknown name');
@@ -345,9 +348,24 @@ let TradingModule = {
                 }
             }
 
-            offer.set('approved', sync.get('counter') + 1);
+            offer.set('approved', sync.get('counter'));
             await offer.save();
             await sync.fetch();
+        },
+        async completeTrade(context, params) {
+            return Parse.Cloud.run('completeTrade', params);
+        },
+        async updateTrade(context, {syncId}) {
+            let sync = context.state.remoteSyncs[syncId];
+            if (sync === undefined) {
+                sync = await new Parse.Query(TradeSync).get(syncId);
+            } else {
+                sync = await sync.fetch();
+            }
+
+            return Promise.resolve({
+                sync: sync
+            });
         }
     }
 };

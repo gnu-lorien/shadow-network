@@ -206,51 +206,49 @@ describe('member/Trade.vue', () => {
         expect(result.me.remote.get('resources')).to.have.lengthOf(0);
         expect(result.sync.get('counter')).to.equal(1);
     });
+
     it("can complete a full trade from another to me", async () => {
         let result;
         result = await store.dispatch('initiateTradeWith', {
             themId: themId,
             meId: meId
         });
+        await store.dispatch('loadOrUseMember', meId);
         let {remote: resource} = await store.dispatch('createNewResource', themId);
-        console.log("Why is it like this?");
         await Parse.User.logOut();
-        console.log("Why is it like this?");
-        let user = await Parse.User.logIn(
+        await Parse.User.logIn(
             process.env.VUE_APP_TEST_THEM_USERNAME,
             process.env.VUE_APP_TEST_THEM_PASSWORD);
-        console.log("Why is it like this?");
         result = await store.dispatch('addResourceToTrade', {
             syncId: result.sync.id,
             resourceId: resource.id,
             memberId: themId
         });
-        console.log("Why is it like this?");
+        result = await store.dispatch('updateTrade', {
+            syncId: result.sync.id,
+        });
         await store.dispatch('acceptTradeAs', {
             syncId: result.sync.id,
             memberId: themId
         });
-        console.log("Why is it like this?");
         await Parse.User.logOut();
-        console.log("Why is it like this?");
         await Parse.User.logIn(
             process.env.VUE_APP_TEST_USERNAME,
             process.env.VUE_APP_TEST_PASSWORD);
-        console.log("Why is it like this?");
+        result = await store.dispatch('updateTrade', {
+            syncId: result.sync.id,
+        });
         await store.dispatch('acceptTradeAs', {
             syncId: result.sync.id,
             memberId: meId
         });
-        console.log("Why is it like this?");
         await store.dispatch('completeTrade', {
             syncId: result.sync.id
         });
-        console.log("Why is it like this?");
         await store.dispatch('loadOrUseCurrentMemberResourceIds');
-        console.log("Why is it like this?");
         expect(store.state.member.resourceIds).to.be.an('array').that.includes(resource.id);
 
-        let resourceIds = store.dispatch('loadOrUseResourceIds', themId);
+        let resourceIds = await store.dispatch('loadOrUseResourceIds', themId);
         expect(resourceIds).to.be.an('array').that.does.not.include(resource.id);
     });
 
