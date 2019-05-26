@@ -3,7 +3,6 @@
         <member-summary class="row" v-for="id in members" :key="id" :memberId="id" @member-selected="select"/>
         <div class="row">
             <button v-on:click="add">Add</button>
-            <button v-on:click="changeaname">Change A Name</button>
         </div>
     </div>
 </template>
@@ -59,12 +58,6 @@
                     .catch(function (e) {
                         alert("Failed to create new member " + e.message);
                     });
-            },
-            changeaname() {
-                const member = this.members[0];
-                member.set('name', 'Something else');
-                //member.attributes.name = 'Something else';
-                Vue.set(member, 'attributes.name', 'Something else');
             },
             select(memberId) {
                 this.$router.push({name: 'memberLanding', params: {memberId: memberId}});

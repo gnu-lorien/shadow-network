@@ -1,7 +1,6 @@
 <template>
     <div>
-        <p>A member with {{member.id}} and {{member.attributes.name}}</p>
-        <p><button v-on:click="edit">Edit</button></p>
+        <p>{{member.attributes.street_name}} / {{member.id}}</p>
         <p><button v-on:click="$emit('member-selected', member.id)">Select</button></p>
     </div>
 </template>
@@ -38,12 +37,6 @@
             },
             setupMember(member) {
                 this.member = member;
-            },
-            edit() {
-                this.member.set('name', 'A New Name');
-                for (const key in this.member.attributes) {
-                    Vue.set(this.member, `attributes.${key}`, this.member.get(key));
-                }
             },
             select() {
                 this.$router.push({name: 'memberLanding', params: { memberId: this.member.id}});

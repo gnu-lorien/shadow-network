@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container">
         <button v-on:click="initiatingATrade">Initiate a Trade</button>
         <button v-on:click="declineAllTrades">Decline All Trades</button>
         <div v-if="initiating">
