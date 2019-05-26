@@ -4,9 +4,7 @@ import Vuex from 'vuex'
 import Member from '@/models/member.js'
 import Resource from '@/models/resource.js';
 import Component from '@/models/component.js';
-import Trade from '@/models/trade.js';
 import TradeSync from '@/models/tradesync.js';
-import TradeOffer from '@/models/tradeoffer.js';
 
 Vue.use(Vuex)
 
@@ -77,7 +75,7 @@ let ResourcesModule = {
         destroyCurrentMemberResourceComponentId(state, { resourceId, componentId }) {
             if (state.resources[resourceId] !== undefined) {
                 let n = state.resources[resourceId].componentIds.filter((element) => {
-                    return element != componentId;
+                    return element !== componentId;
                 });
                 Vue.set(state.resources[resourceId], 'componentIds', n);
             }
