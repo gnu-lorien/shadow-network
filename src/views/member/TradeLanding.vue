@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <b-card>
+                <b-card bg-variant="dark" text-variant="white" border-variant="primary">
                     <b-card-header>{{currentMember.street_name}}</b-card-header>
                     <b-card-body>
                         <button v-on:click="add">Add</button>
@@ -13,7 +13,7 @@
         </div>
         <div class="row">
             <div class="col">
-                <b-card>
+                <b-card bg-variant="dark" text-variant="white">
                     <b-card-header>{{themMember.get('street_name')}}</b-card-header>
                     <b-card-body>
                         <button v-on:click="add">Add</button>
