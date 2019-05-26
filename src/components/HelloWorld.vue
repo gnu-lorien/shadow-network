@@ -1,5 +1,7 @@
 <template>
   <div class="hello">
+    <h1>Expendable Assets</h1>
+
     <h1>{{ msg }}<span class="badge badge-secondary">New</span></h1>
     <p>
       For a guide and recipes on how to configure / customize this project,<br>

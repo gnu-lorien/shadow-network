@@ -62,9 +62,7 @@
             }
         },
         mounted: async function () {
-            console.log('break');
             await this.fetch();
-            console.log('break');
         },
         computed: {
             resources() {
@@ -83,7 +81,6 @@
         methods: {
             async fetch() {
                 await this.$store.dispatch('loadOrUseCurrentMemberResourceIds');
-                console.log('break');
                 let result = await this.$store.dispatch('loadOrUseTrade', {
                     memberId: this.$props.memberId,
                     syncId: this.$props.syncId
@@ -96,7 +93,7 @@
                 this.adding = true;
             },
             async addToMyResources(resourceId) {
-                let result = await this.$store.dispatch('addResourceToTrade', {
+                await this.$store.dispatch('addResourceToTrade', {
                     syncId: this.$props.syncId,
                     memberId: this.$props.memberId,
                     resourceId: resourceId
@@ -104,7 +101,7 @@
                 this.adding = false;
             },
             async removeFromMyResources(resourceId) {
-                 let result = await this.$store.dispatch('removeResourceFromTrade', {
+                 await this.$store.dispatch('removeResourceFromTrade', {
                     syncId: this.$props.syncId,
                     memberId: this.$props.memberId,
                     resourceId: resourceId
@@ -112,11 +109,11 @@
             },
             async acceptTrade() {
                 try {
-                    let result = await this.$store.dispatch('acceptTradeAs', {
+                    await this.$store.dispatch('acceptTradeAs', {
                         syncId: this.$props.syncId,
                         memberId: this.$props.memberId
                     });
-                    result = await this.$store.dispatch('completeTrade', {
+                    let result = await this.$store.dispatch('completeTrade', {
                         syncId: this.$props.syncId
                     });
                     // RAS TODO Go back to the resources view and bask in your new resources
