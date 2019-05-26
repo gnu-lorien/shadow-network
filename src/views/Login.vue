@@ -73,19 +73,8 @@
                     alert("Please enter a username");
                 }
 
-                Parse.Cloud.run('hello')
-                    .then((response) => {
-                        alert("Nothing?");
-                        alert(JSON.stringify(response));
-                    })
-                    .catch(function (e) {
-                        alert("Error calling hello " + e.message);
-                    });
                 Parse.User.logIn(this.username, this.password)
                     .then(() => {
-                        // Used an arrow function here because I
-                        // want to access 'this' which is overridden in
-                        // a conventional function
                         this.$router.replace("/members");
                     })
                     .catch(function (e) {

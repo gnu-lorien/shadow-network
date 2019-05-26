@@ -1,7 +1,7 @@
 <template>
     <div id="app">
-        <b-navbar id="nav" toggleable="lg" type="dark">
-            <b-navbar-brand href="#">Shadow Network</b-navbar-brand>
+        <b-navbar id="nav" toggleable="md" type="dark">
+            <b-navbar-brand @click.prevent="gohome">Expendable Assets</b-navbar-brand>
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
@@ -30,6 +30,15 @@
     );
 
     export default {
-        name: "App"
+        name: "App",
+        methods: {
+            gohome() {
+                if (Parse.User.current()) {
+                    this.$router.push({name: 'members'});
+                } else {
+                    this.$router.push('/');
+                }
+            }
+        }
     }
 </script>
