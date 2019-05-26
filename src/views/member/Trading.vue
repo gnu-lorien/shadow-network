@@ -1,52 +1,64 @@
 <template>
     <div>
-        <button v-on:click="startNewTrade">Initiate a Trade</button>
+        <button v-on:click="initiatingATrade">Initiate a Trade</button>
+        <div v-if="initiating">
+            <member-summary class="row" v-for="id in members" :key="id" :memberId="id" @member-selected="select"/>
+        </div>
         <b-list-group>
-            <b-list-group-item>Trade One</b-list-group-item>
+            <b-list-group-item v-for="syncId in syncIds" :key="syncId">Trade: {{syncId}}</b-list-group-item>
         </b-list-group>
     </div>
 </template>
 
 <script>
+    import Parse from "parse";
+    import Member from '@/models/member.js';
     import CurrentMember from '@/mixins/CurrentMember.js'
+    import MemberSummary from '@/components/MemberSummary.vue'
     export default {
         name: "MemberTrading",
+        components: {
+            MemberSummary
+        },
         props: [
             "memberId"
         ],
         mixins: [ CurrentMember ],
+        data: function() {
+            return {
+                syncIds: [],
+                initiating: false,
+                members: []
+            }
+        },
+        mounted: async function() {
+            await this.fetch();
+        },
         methods: {
-            async startNewTrade() {
-                try {
-                    let themId = "tUl6fCXYD4";
-                    let localTrade, remoteTrade;
-                    try {
-                        [localTrade, remoteTrade] = await this.$store.dispatch('initiateTradeWith', {
-                            meId: this.memberId,
-                            themId: themId
-                        });
-                    } catch (e) {
-                        console.log(JSON.stringify(e));
-                    }
-                    [localTrade, remoteTrade] = await this.$store.dispatch('addResourceToTrade', {
-                        tradeId: localTrade.id,
-                        resourceId: "aoeuaoeu",
-                        memberId: this.memberId
-                    });
-                    [localTrade, remoteTrade] = await this.$store.dispatch('addResourceToTrade', {
-                        tradeId: localTrade.id,
-                        resourceId: "aoeuaoeu",
-                        memberId: this.memberId
-                    });
-                    [localTrade, remoteTrade] = await this.$store.dispatch('addResourceToTrade', {
-                        tradeId: localTrade.id,
-                        resourceId: "dige93thau",
-                        memberId: themId
-                    });
-                    console.log(localTrade);
-                } catch (e) {
-                    console.log(e.message);
-                }
+            async fetch() {
+                this.syncIds = await this.$store.dispatch('loadOrUseTradeIds', {memberId: this.$props.memberId});
+            },
+            async initiatingATrade() {
+                let user = Parse.User.current();
+                let userId = user.id;
+                const q = new Parse.Query(Member);
+                q.equalTo("owner", {
+                    __type: 'Pointer',
+                    className: '_User',
+                    objectId: userId
+                });
+                q.select("id");
+                let members = await q.find();
+                this.members = members.map(member => member.id);
+                this.initiating = true;
+            },
+            async select(memberId) {
+                await this.$store.dispatch('initiateTradeWith', {
+                    themId: memberId,
+                    meId: this.$props.memberId
+                });
+                await this.fetch();
+                this.initiating = false;
             }
         }
     }

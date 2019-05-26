@@ -2,7 +2,7 @@
     <div>
         <p>A member with {{member.id}} and {{member.attributes.name}}</p>
         <p><button v-on:click="edit">Edit</button></p>
-        <p><button v-on:click="select">Select</button></p>
+        <p><button v-on:click="$emit('member-selected', member.id)">Select</button></p>
     </div>
 </template>
 

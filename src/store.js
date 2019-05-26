@@ -5,6 +5,7 @@ import Member from '@/models/member.js'
 import Resource from '@/models/resource.js';
 import Component from '@/models/component.js';
 import TradeSync from '@/models/tradesync.js';
+import TradeOffer from '@/models/tradeoffer.js';
 
 Vue.use(Vuex)
 
@@ -259,6 +260,16 @@ let TradingModule = {
         }
     },
     actions: {
+        async loadOrUseTradeIds(context, {memberId, filters}) {
+            const q = new Parse.Query(TradeOffer).equalTo("member", {
+                __type: 'Pointer',
+                className: 'Member',
+                objectId: memberId
+            }).select("tradesync");
+            let offers = await q.find();
+            let syncIds = offers.map((offer) => { return offer.get('tradesync').id});
+            return Promise.resolve(syncIds);
+        },
         async initiateTradeWith(context, { meId, themId }) {
             let result = await Parse.Cloud.run('initiateTradeWith', { meId, themId });
             context.state.remoteSyncs[result.sync.id] = result.sync;

@@ -8,10 +8,8 @@
 </template>
 
 <script>
-    import Parse from 'parse';
     import ResourceSummary from '@/components/ResourceSummary.vue';
     import CurrentMember from '@/mixins/CurrentMember.js'
-    import Member from '@/models/member.js'
 
     export default {
         name: "MemberResources",

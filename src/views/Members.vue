@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <member-summary class="row" v-for="id in members" :key="id" :memberId="id" />
+        <member-summary class="row" v-for="id in members" :key="id" :memberId="id" @member-selected="select"/>
         <div class="row">
             <button v-on:click="add">Add</button>
             <button v-on:click="changeaname">Change A Name</button>
@@ -10,9 +10,11 @@
 
 <script>
     import Parse from 'parse';
+
     let Member = Parse.Object.extend("Member");
     import Vue from 'vue';
     import MemberSummary from '@/components/MemberSummary.vue'
+
     export default {
         name: "Members.vue",
         components: {
@@ -43,8 +45,8 @@
             add() {
                 const member = new Member();
                 const acl = new Parse.ACL();
-                acl.setWriteAccess( Parse.User.current(), true);
-                acl.setPublicReadAccess( true);
+                acl.setWriteAccess(Parse.User.current(), true);
+                acl.setPublicReadAccess(true);
                 member.setACL(acl);
 
                 member.set('owner', Parse.User.current());
@@ -54,7 +56,7 @@
                     .then((member) => {
                         this.members = [member.id].concat(this.members);
                     })
-                    .catch(function(e) {
+                    .catch(function (e) {
                         alert("Failed to create new member " + e.message);
                     });
             },
@@ -63,7 +65,10 @@
                 member.set('name', 'Something else');
                 //member.attributes.name = 'Something else';
                 Vue.set(member, 'attributes.name', 'Something else');
-            }
+            },
+            select(memberId) {
+                this.$router.push({name: 'memberLanding', params: {memberId: memberId}});
+            },
         }
     }
 </script>
