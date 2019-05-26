@@ -430,7 +430,7 @@ let TradingModule = {
             } else {
                 let currentCounter = sync.get('counter');
                 sync = await sync.fetch();
-                updateOffers = currentCounter != sync.get('counter');
+                updateOffers = currentCounter !== sync.get('counter');
             }
 
             if (updateOffers) {
