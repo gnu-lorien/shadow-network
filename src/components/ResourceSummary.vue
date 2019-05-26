@@ -7,8 +7,10 @@
                 <component-summary v-for="id in componentIds" :key="id" :componentId="id" :memberId="memberId" :resourceId="resourceId" />
             </b-list-group>
             <b-card-footer>
-                <button v-on:click="edit">Edit</button>
-                <button v-on:click="remove">Delete</button>
+                <slot>
+                    <button v-on:click="edit">Edit</button>
+                    <button v-on:click="remove">Delete</button>
+                </slot>
             </b-card-footer>
         </b-card>
     </div>

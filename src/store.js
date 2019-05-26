@@ -281,6 +281,7 @@ let TradingModule = {
             }
             context.commit('setOffer', me);
             context.commit('setOffer', them);
+            context.state.remoteSyncs[sync.id] = sync;
             return Promise.resolve({
                 sync: sync,
                 me: me,
@@ -343,6 +344,44 @@ let TradingModule = {
                 }
             });
         },
+        async removeResourceFromTrade(context, { syncId, resourceId, memberId }) {
+            let sync = context.state.remoteSyncs[syncId];
+            if (sync === undefined) {
+                sync = await new Parse.Query(TradeSync).get(syncId);
+            }
+
+            let offer = sync.get('left');
+            if (offer.get('member').id !== memberId) {
+                offer = sync.get('right');
+                if (offer.get('member').id !== memberId) {
+                    throw {message: "Member " + memberId + " not involved in selected trade " + syncId}
+                }
+            }
+            let resourceIds = offer.get('resources');
+            resourceIds = resourceIds.filter((e) => {
+                return e !== resourceId;
+            });
+            offer.set('resources', resourceIds);
+            offer.increment('counter');
+            try {
+                offer = await offer.save();
+                context.commit('setOffer', offer);
+            } catch (e) {
+                offer = await offer.fetch();
+                context.commit('setOffer', offer);
+                throw e;
+            }
+
+            await sync.fetch();
+
+            return Promise.resolve({
+                sync: sync,
+                me: {
+                    local: context.state.offers[offer.id],
+                    remote: context.state.remoteOffers[offer.id]
+                }
+            });
+        },
         async attemptUpdate(context, inTrade) {
             let currentCount = inTrade.get('counter');
             inTrade.increment('counter');
@@ -383,14 +422,28 @@ let TradingModule = {
         },
         async updateTrade(context, {syncId}) {
             let sync = context.state.remoteSyncs[syncId];
+            let updateOffers = false;
             if (sync === undefined) {
                 sync = await new Parse.Query(TradeSync).get(syncId);
+                context.state.remoteSyncs[sync.id] = sync;
+                updateOffers = true;
             } else {
+                let currentCounter = sync.get('counter');
                 sync = await sync.fetch();
+                updateOffers = currentCounter != sync.get('counter');
+            }
+
+            if (updateOffers) {
+                var left = await sync.get('left').fetch();
+                var right = await sync.get('right').fetch();
+                context.commit('setOffer', left);
+                context.commit('setOffer', right);
             }
 
             return Promise.resolve({
-                sync: sync
+                sync: sync,
+                left: left,
+                right: right
             });
         }
     }
