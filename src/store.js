@@ -137,14 +137,15 @@ let ResourcesModule = {
                     return Promise.resolve(context.state.resources[resourceId]);
                 });
         },
-        loadOrUseResourceComponents(context, resourceId) {
-            return context.dispatch('loadOrUseResource', resourceId)
-                .then(() => {
-                    return context.dispatch('loadOrUseComponentsForResource', resourceId);
-                })
-                .then((components) => {
-                    Vue.set(context.state.resources[resourceId], 'componentIds', components.map(c => c.id));
-                })
+        async loadOrUseResourceComponents(context, resourceId) {
+            await context.dispatch('loadOrUseResource', resourceId);
+            if (context.state.resources[resourceId] !== undefined) {
+                if (context.state.resources[resourceId].componentIds !== undefined) {
+                    return;
+                }
+            }
+            let components = await context.dispatch('loadOrUseComponentsForResource', resourceId);
+            Vue.set(context.state.resources[resourceId], 'componentIds', components.map(c => c.id));
         },
         destroyResource(context, resourceId) {
             return context.dispatch('loadOrUseResource', resourceId)

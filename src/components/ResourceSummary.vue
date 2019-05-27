@@ -42,14 +42,9 @@
             this.fetch();
         },
         methods: {
-            fetch() {
-                this.$store.dispatch('loadOrUseResource', this.$props.resourceId)
-                    .then(() => {
-                        return this.$store.dispatch('loadOrUseResourceComponents', this.$props.resourceId);
-                    })
-                    .catch((e) => {
-                        alert("Failed to load resource or components " + e.message);
-                    });
+            async fetch() {
+                await this.$store.dispatch('loadOrUseResource', this.$props.resourceId);
+                await this.$store.dispatch('loadOrUseResourceComponents', this.$props.resourceId);
             },
             edit() {
                 this.$router.push({
