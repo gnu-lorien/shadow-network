@@ -1,6 +1,6 @@
 <template>
     <div>
-        <p>{{member.attributes.street_name}} / {{member.id}}</p>
+        <p><img :src="portraitthumb_64"/>{{member.street_name}} / {{member.id}}</p>
         <p><button v-on:click="$emit('member-selected', member.id)">Select</button></p>
     </div>
 </template>
@@ -18,25 +18,24 @@
             return {
                 member: {
                     id: "",
-                    attributes: {
-                        name: ""
-                    }
-                }
+                    street_name: ""
+                },
+                memberPortrait: {}
             }
         },
-        mounted: function() {
-            this.fetch();
+        computed: {
+            portraitthumb_64() { return this.memberPortrait.thumb_64 ? this.memberPortrait.thumb_64.url() : ""; }
+        },
+        mounted: async function() {
+            await this.fetch();
         },
         methods: {
-            fetch() {
-                const q = new Parse.Query(Member);
-                q.get(this.$props.memberId)
-                    .then((member) => {
-                        this.setupMember(member);
-                    });
-            },
-            setupMember(member) {
+            async fetch() {
+                let {member, portrait} = await this.$store.dispatch('loadOrUseMember', {
+                    memberId: this.$props.memberId
+                });
                 this.member = member;
+                this.memberPortrait = portrait || {};
             },
             select() {
                 this.$router.push({name: 'memberLanding', params: { memberId: this.member.id}});

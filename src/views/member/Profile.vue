@@ -42,7 +42,7 @@
             let result = await this.$store.dispatch('loadOrUseMember', {
                 memberId: this.currentMember.id
             });
-            this.memberPortrait = result.portrait;
+            this.memberPortrait = result.portrait || {};
         },
         computed: {
             portraitoriginal() { return this.memberPortrait.original ? this.memberPortrait.original.url() : ""; },
@@ -66,7 +66,7 @@
                     memberId: this.currentMember.id,
                     force: true
                 });
-                this.memberPortrait = result.portrait;
+                this.memberPortrait = result.portrait || {};
             },
             async handleFileChange(event) {
                 if (event.target.files.length !== 1) {
