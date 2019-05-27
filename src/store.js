@@ -94,8 +94,10 @@ let ResourcesModule = {
                 className: 'Member',
                 objectId: memberId
             }).select("id");
-            let resources = await q.find();
-            let resourceIds = resources.map(resource => resource.id);
+            let resourceIds = [];
+            await q.each((resource) => {
+                resourceIds.push(resource.id);
+            })
             return Promise.resolve(resourceIds);
         },
         loadOrUseResource(context, resourceId) {
