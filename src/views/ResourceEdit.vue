@@ -63,23 +63,8 @@
                         alert("Failed to save resource! " + e.message);
                     })
             },
-            add() {
-                const component = new Component();
-                const acl = new Parse.ACL();
-                acl.setWriteAccess(Parse.User.current(), true);
-                acl.setPublicReadAccess(true);
-                component.setACL(acl);
-
-                component.set('short', "A short description");
-                component.set('resource', this.$store.state.resources.remoteResources[this.$props.resourceId]);
-                component.save()
-                    .then((component) => {
-                        this.$store.commit('setComponent', component);
-                        this.$store.commit('addCurrentMemberResourceComponentId', {resourceId: this.$props.resourceId, componentId: component.id});
-                    })
-                    .catch((e) => {
-                        alert("Failed to create a new component " + e.message);
-                    });
+            async add() {
+                await this.$store.dispatch('createNewComponent', this.$props.resourceId);
             }
         }
     }
