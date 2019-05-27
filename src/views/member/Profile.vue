@@ -53,7 +53,8 @@
         },
         methods: {
             async save() {
-                if (this.portrait) {
+                if (this.portrait.save) {
+                    console.log('break');
                     this.portrait = await this.portrait.save();
                     this.memberPortrait = new MemberPortrait();
                     this.memberPortrait.set('original', this.portrait);
@@ -66,8 +67,7 @@
                 } else {
                     await this.$store.dispatch('updateAndSaveCurrentMember', {
                         name: this.name,
-                        street_name: this.street_name,
-                        portrait: this.memberPortrait
+                        street_name: this.street_name
                     });
                 }
                 let result = await this.$store.dispatch('loadOrUseMember', {

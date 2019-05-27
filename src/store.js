@@ -399,6 +399,21 @@ let ComponentsModule = {
                 .then(component => {
                     return context.commit('setComponent', component);
                 });
+        },
+        async createNewComponent(context, resourceId) {
+            const component = new Component();
+            const acl = new Parse.ACL();
+            acl.setWriteAccess(Parse.User.current(), true);
+            component.setACL(acl);
+
+            component.set('short', "A short description");
+            component.set('resource', context.rootState.resources.remoteResources[this.$props.resourceId]);
+            await component.save();
+            context.commit('setComponent', component);
+            context.commit('addCurrentMemberResourceComponentId', {
+                resourceId: resourceId,
+                componentId: component.id
+            });
         }
     }
 };
