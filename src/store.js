@@ -113,11 +113,12 @@ let ResourcesModule = {
                 objectId: memberId
             });
             let count = await countq.count();
+            let pageSize = parseInt(process.env.VUE_APP_PARSE_BATCH_SIZE);
             const q = new Parse.Query(Resource).equalTo("member", {
                 __type: 'Pointer',
                 className: 'Member',
                 objectId: memberId
-            }).select("id").skip(10 * (page - 1)).limit(10);
+            }).select("id").skip(pageSize * (page - 1)).limit(pageSize);
             let resources = await q.find();
             let resourceIds = resources.map(resource => resource.id);
             return Promise.resolve({

@@ -2,7 +2,7 @@
     <div class="container">
         <button v-on:click="initiatingATrade">Initiate a Trade</button>
         <button v-on:click="declineAllTrades">Decline All Trades</button>
-        <div v-if="initiating">
+        <div v-if="initiating" class="container">
             <member-summary class="row" v-for="id in members" :key="id" :memberId="id" @member-selected="select"/>
         </div>
         <b-list-group>
