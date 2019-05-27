@@ -3,6 +3,8 @@ let TradeSync = Parse.Object.extend("TradeSync");
 let TradeOffer = Parse.Object.extend("TradeOffer");
 let Member = Parse.Object.extend("Member");
 let Resource = Parse.Object.extend("Resource");
+let MemberPortrait = Parse.Object.extend("MemberPortrait");
+let Image = require('jimp');
 
 Parse.Cloud.define('hello', async (request) => {
     return "Hello from Parse!" + JSON.stringify(request);
@@ -193,4 +195,61 @@ Parse.Cloud.define('declineTrades', async (request) => {
             declined: true
         }, {useMasterKey: true});
     }
+});
+
+let create_thumbnail = async function(portrait, input_image, size) {
+    let buffer = await input_image.getBufferAsync(Image.MIME_JPEG);
+    let image = await Image.read(buffer);
+    image.scaleToFit(size, size);
+    buffer = await image.getBufferAsync(Image.MIME_JPEG);
+    let base64 = buffer.toString("base64");
+    let cropped = new Parse.File("thumbnail_" + size + ".jpg", {base64: base64});
+    cropped = await cropped.save();
+    portrait.set("thumb_" + size, cropped);
+    return Promise.resolve(portrait);
+};
+
+let crop_and_thumb = async function(portrait) {
+    var THUMBNAIL_SIZES = [32, 64, 128, 256];
+    var needed_sizes = [];
+
+    if (portrait.dirty("original")) {
+        for (let size of THUMBNAIL_SIZES) {
+            portrait.set("thumb_" + size, undefined);
+        }
+    }
+
+    for (let size of THUMBNAIL_SIZES) {
+        if (!portrait.get("thumb_" + size)) {
+            needed_sizes.push(size);
+        }
+    }
+
+    if (0 === needed_sizes.length) {
+        return;
+    }
+
+    let url = portrait.get("original").url();
+    let response = await Parse.Cloud.httpRequest({
+        url: url
+    });
+
+    let image = await Image.read(response.buffer);
+    // Crop the image to the smaller of width or height.
+    let size = Math.min(image.bitmap.width, image.bitmap.height);
+    image.crop(
+        (image.bitmap.width - size) / 2,
+        (image.bitmap.height - size) / 2,
+        size,
+        size
+    );
+    for (let size of THUMBNAIL_SIZES) {
+        await create_thumbnail(portrait, image, size);
+    }
+    await portrait.save();
+};
+
+Parse.Cloud.define('doTheCrop', async (request) => {
+    let portrait = await new Parse.Query(MemberPortrait).get(request.params.portraitId);
+    await crop_and_thumb(portrait);
 });

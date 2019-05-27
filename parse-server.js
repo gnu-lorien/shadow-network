@@ -13,7 +13,7 @@ var settings = {
     "mountPath": process.env.MOUNT_PATH || "/parse/1",
     "cloud": process.env.CLOUD_CODE_MAIN || "cloud/main.js",
     "verbose": true,
-    "publicServerURL": process.env.PUBLIC_SERVER_URL || "https://localhost:1337/parse/1",
+    "publicServerURL": process.env.PUBLIC_SERVER_URL || "http://localhost:1337/parse/1",
     "serverURL": "http://0.0.0.0:" + port + "/parse/1"
 };
 
