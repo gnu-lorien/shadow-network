@@ -246,10 +246,14 @@ let crop_and_thumb = async function(portrait) {
     for (let size of THUMBNAIL_SIZES) {
         await create_thumbnail(portrait, image, size);
     }
-    await portrait.save();
 };
 
 Parse.Cloud.define('doTheCrop', async (request) => {
     let portrait = await new Parse.Query(MemberPortrait).get(request.params.portraitId);
     await crop_and_thumb(portrait);
+    await portrait.save();
+});
+
+Parse.Cloud.beforeSave('MemberPortrait', async (request) => {
+    await crop_and_thumb(request.object);
 });

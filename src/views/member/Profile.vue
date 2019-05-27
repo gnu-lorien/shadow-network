@@ -8,7 +8,6 @@
             <label>Portrait</label>
             <input type="file" @change="handleFileChange($event)"/>
             <button v-on:click.prevent="save">Save</button>
-            <button v-on:click.prevent="thumbit">Thumb It</button>
         </form>
     </div>
 </template>
@@ -54,12 +53,6 @@
                 let file = event.target.files[0];
                 let name = file.name;
                 this.portrait = new Parse.File(name, file);
-            },
-            async thumbit() {
-                console.log('break');
-                await Parse.Cloud.run('doTheCrop', {
-                    portraitId: this.memberPortrait.id
-                })
             }
         }
     }
