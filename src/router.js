@@ -13,6 +13,7 @@ import MemberVault from './views/member/Vault.vue'
 import MemberProfile from './views/member/Profile.vue'
 import MemberTradeLanding from './views/member/TradeLanding.vue'
 import GameMasterLanding from './views/gamemaster/Landing.vue'
+import GameMasterTransferMembers from './views/gamemaster/TransferMembers.vue'
 import store from './store'
 
 Vue.use(Router)
@@ -43,7 +44,17 @@ const router = new Router({
             component: GameMasterLanding,
             meta: {
                 requiredRoles: ['gamemaster']
-            }
+            },
+            children: [
+                {
+                    path: '/transfer',
+                    name: 'gamemasterTransferMembers',
+                    component: GameMasterTransferMembers,
+                    meta: {
+                        requiredRoles: ['gamemaster']
+                    },
+                }
+            ]
         },
         {
             path: '/members',
