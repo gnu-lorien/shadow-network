@@ -159,6 +159,7 @@ router.beforeEach(async (to, from, next) => {
     if (to.meta.requiredRoles) {
         if (roles === undefined) {
             alert("Don't have required roles " + to.meta.requiredRoles);
+            next(false);
             return;
         }
         for (let requiredRole of to.meta.requiredRoles) {
@@ -170,6 +171,7 @@ router.beforeEach(async (to, from, next) => {
             }
         }
         alert("Don't have required roles " + to.meta.requiredRoles);
+        next(false);
         return;
     }
 
