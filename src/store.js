@@ -407,7 +407,7 @@ let ComponentsModule = {
             component.setACL(acl);
 
             component.set('short', "A short description");
-            component.set('resource', context.rootState.resources.remoteResources[this.$props.resourceId]);
+            component.set('resource', context.rootState.resources.remoteResources[resourceId]);
             await component.save();
             context.commit('setComponent', component);
             context.commit('addCurrentMemberResourceComponentId', {
