@@ -125,6 +125,8 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+    store.commit('setUser', Parse.User.current());
+
     if (to.meta.authorizationOptional) {
         next();
         return;

@@ -6,13 +6,13 @@
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
                     <b-nav-item to="/">Home</b-nav-item>
-                    <b-nav-item to="/login">Login</b-nav-item>
                     <b-nav-item to="/members">Members</b-nav-item>
                     <b-nav-item-dropdown right>
                         <!-- Using 'button-content' slot -->
                         <template slot="button-content"><em>User</em></template>
                         <!-- <b-dropdown-item href="#">Profile</b-dropdown-item> -->
-                        <b-dropdown-item @click.prevent="signout">Sign Out</b-dropdown-item>
+                        <b-dropdown-item to="/login" v-if="!hasCurrentUser">Login</b-dropdown-item>
+                        <b-dropdown-item @click.prevent="signout" v-if="hasCurrentUser">Sign Out</b-dropdown-item>
                     </b-nav-item-dropdown>
                 </b-navbar-nav>
             </b-collapse>
@@ -31,6 +31,14 @@
 
     export default {
         name: "App",
+        computed: {
+            username() {
+                return this.$store.state.user.username;
+            },
+            hasCurrentUser: function() {
+                return this.username !== "";
+            }
+        },
         methods: {
             gohome() {
                 if (Parse.User.current()) {
@@ -40,7 +48,8 @@
                 }
             },
             async signout() {
-                await Parse.User.logOut();
+                await this.$store.dispatch("logoutParse");
+                this.$router.push('/');
             }
         }
     }

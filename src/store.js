@@ -10,6 +10,64 @@ import MemberPortrait from '@/models/memberportrait.js'
 
 Vue.use(Vuex);
 
+let UserModule = {
+    state: {
+        username: ""
+    },
+    mutations: {
+        setUser(state, user) {
+            if (user === null) {
+                state.username = "";
+            } else {
+                state.username = user.get('username');
+            }
+        }
+    },
+    actions: {
+        async loginParse(context, {username, password}) {
+            if (Parse.User.current()) {
+                await Parse.User.logOut();
+            }
+            await Parse.User.logIn(username, password);
+            if (Parse.User.current()) {
+                context.state.username = Parse.User.current().get('username');
+            }
+            return Promise.resolve(Parse.User.current());
+        },
+        async signupParse(context, options) {
+            if (options.email.length === 0) {
+                alert("Please enter an email");
+                return;
+            }
+            if (options.password.length === 0) {
+                alert("Please enter a password");
+                return;
+            }
+            if (options.username.length === 0) {
+                alert("Please enter a username");
+                return;
+            }
+
+            let user = new Parse.User();
+            user.set(options);
+
+            await user.signUp();
+            if (Parse.User.current()) {
+                context.state.username = Parse.User.current().get('username');
+            }
+            return Promise.resolve(Parse.User.current());
+        },
+        async logoutParse(context) {
+            try {
+                await Parse.User.logOut();
+            } catch (e) {
+
+            }
+            context.state.username = "";
+        }
+    }
+}
+
 let MembersModule = {
     state: {
         members: {},
@@ -573,7 +631,8 @@ export default new Vuex.Store({
         resources: ResourcesModule,
         components: ComponentsModule,
         trading: TradingModule,
-        members: MembersModule
+        members: MembersModule,
+        user: UserModule
     }
 });
 

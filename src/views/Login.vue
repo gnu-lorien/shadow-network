@@ -15,7 +15,7 @@
                         <form class="form-signin">
                             <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
                             <label for="inputUsername" class="sr-only">Username</label>
-                            <input v-model="username" type="email" id="inputUsername" class="form-control" placeholder="Username" required="" autofocus="">
+                            <input v-model="formUsername" type="email" id="inputUsername" class="form-control" placeholder="Username" required="" autofocus="">
                             <label for="inputPassword" class="sr-only">Password</label>
                             <input  v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
                             <button v-on:click="login" class="btn btn-lg btn-primary btn-block" type="button">Sign in</button>
@@ -26,7 +26,7 @@
                         <form class="form-signup">
                             <h1 class="h3 mb-3 font-weight-normal">Please sign up</h1>
                             <label for="inputUsernameSignup" class="sr-only">Username</label>
-                            <input v-model="username" id="inputUsernameSignup" class="form-control" placeholder="Username" required="" autofocus="">
+                            <input v-model="formUsername" id="inputUsernameSignup" class="form-control" placeholder="Username" required="" autofocus="">
                             <label for="inputEmailSignup" class="sr-only">Email address</label>
                             <input v-model="email" type="email" id="inputEmailSignup" class="form-control" placeholder="Email address" required="" autofocus="">
                             <label for="inputPasswordSignup" class="sr-only">Password</label>
@@ -48,38 +48,33 @@
             return {
                 email: "",
                 password: "",
-                username: null
-            }
-        },
-        mounted: function () {
-            if (Parse.User.current()) {
-                this.username = Parse.User.current().get('username');
-            } else {
-                this.username = null;
+                formUsername: ""
             }
         },
         computed: {
+            username() {
+                return this.$store.state.user.username;
+            },
             hasCurrentUser: function() {
-                return Parse.User.current() !== null;
+                return this.username !== "";
             }
         },
         methods: {
-            login() {
+            async login() {
                 if (this.password.length === 0) {
                     alert("Please enter a password");
                     return;
                 }
-                if (this.username.length === 0) {
+                if (this.formUsername.length === 0) {
                     alert("Please enter a username");
+                    return;
                 }
 
-                Parse.User.logIn(this.username, this.password)
-                    .then(() => {
-                        this.$router.replace("/members");
-                    })
-                    .catch(function (e) {
-                        alert("Error logging in! " + e.message);
-                    });
+                await this.$store.dispatch('loginParse', {
+                    username: this.formUsername,
+                    password: this.password
+                });
+                this.$router.replace("/members");
             },
             async signup() {
                 if (this.email.length === 0) {
@@ -90,23 +85,20 @@
                     alert("Please enter a password");
                     return;
                 }
-                if (this.username.length === 0) {
+                if (this.formUsername.length === 0) {
                     alert("Please enter a username");
+                    return;
                 }
 
-                let user = new Parse.User();
-                user.set('username', this.username);
-                user.set('email', this.email);
-                user.set('password', this.password);
-
-                await user.signUp();
+                await this.$store.dispatch('signupParse', {
+                    username: this.formUsername,
+                    email: this.email,
+                    password: this.password
+                });
                 this.$router.replace("/members");
             },
-            logout() {
-                Parse.User.logOut()
-                    .finally(() => {
-                        this.username = null;
-                    });
+            async logout() {
+                await this.$store.dispatch('logoutParse');
             }
         }
     }
