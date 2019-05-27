@@ -12,7 +12,8 @@ Vue.use(Vuex);
 
 let UserModule = {
     state: {
-        username: ""
+        username: "",
+        roles: []
     },
     mutations: {
         setUser(state, user) {
@@ -64,6 +65,25 @@ let UserModule = {
 
             }
             context.state.username = "";
+        },
+        async updateUserRoles(context) {
+            if (!Parse.User.current()) {
+                context.state.roles = [];
+                return;
+            }
+            const q = new Parse.Query(Parse.Role);
+            await q.each(async (role) => {
+                let users_relation = role.getUsers();
+                const uq = users_relation.query();
+                uq.equalTo("objectId", Parse.User.current().id);
+                await uq.each(() => {
+                    if (!context.state.roles.includes(role.get("name"))) {
+                        context.state.roles = [role.get('name')].concat(context.state.roles);
+                    }
+                });
+            });
+
+            return Promise.resolve(context.state.roles);
         }
     }
 }

@@ -6,8 +6,10 @@
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav>
                     <b-nav-item to="/">Home</b-nav-item>
-                    <b-nav-item to="/members">Members</b-nav-item>
-                    <b-nav-item-dropdown right>
+                    <b-nav-item to="/members" v-if="hasCurrentUser">Members</b-nav-item>
+                    <b-nav-item to="/gamemaster" v-if="isGamemaster">GameMaster</b-nav-item>
+                    <b-nav-item to="/login" v-if="!hasCurrentUser">Login/Signup</b-nav-item>
+                    <b-nav-item-dropdown right v-if="hasCurrentUser">
                         <!-- Using 'button-content' slot -->
                         <template slot="button-content"><em>User</em></template>
                         <!-- <b-dropdown-item href="#">Profile</b-dropdown-item> -->
@@ -37,6 +39,9 @@
             },
             hasCurrentUser: function() {
                 return this.username !== "";
+            },
+            isGamemaster() {
+                return this.$store.state.user.roles.includes("gamemaster");
             }
         },
         methods: {
