@@ -1,13 +1,16 @@
 <template>
     <div class="container">
         <div class="row">
-            <button v-on:click="add">Add</button>
+            <div class="col">
+            <button v-on:click="add">Add New Resource</button>
+            </div>
+        </div>
+        <div class="row" v-if="resourcesCount > perPage">
             <b-pagination
                     v-model="currentPage"
                     :total-rows="resourcesCount"
                     :per-page="perPage"
             ></b-pagination>
-            {{resourcesCount}} / {{currentPage}}
         </div>
         <resource-summary class="row" v-for="id in resources" :key="id" :resourceId="id" :memberId="memberId"/>
     </div>
