@@ -136,7 +136,7 @@ router.beforeEach((to, from, next) => {
     }
 
     if (to.meta.autoLoadMember) {
-        return store.dispatch('loadOrUseMember', to.params.memberId)
+        return store.dispatch('loadOrUseCurrentMember', to.params.memberId)
             .then(() => {
                 next();
             })

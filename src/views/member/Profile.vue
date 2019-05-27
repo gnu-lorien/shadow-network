@@ -1,11 +1,16 @@
 <template>
     <div>
-        <form>
+        <img>
             <label>Name: </label>
             <input type="text" v-model="name"/>
             <label>Street Name:</label>
             <input type="text" v-model="street_name"/>
             <label>Portrait</label>
+            <img :src="portraitthumb_32"/>
+            <img :src="portraitthumb_64"/>
+            <img :src="portraitthumb_128"/>
+            <img :src="portraitthumb_256"/>
+            <img :src="portraitoriginal"/>
             <input type="file" @change="handleFileChange($event)"/>
             <button v-on:click.prevent="save">Save</button>
         </form>
@@ -15,7 +20,7 @@
 <script>
     import Parse from 'parse';
     import CurrentMember from '@/mixins/CurrentMember.js'
-    let MemberPortrait = Parse.Object.extend("MemberPortrait");
+    import MemberPortrait from '@/models/memberportrait.js'
 
     export default {
         name: "MemberProfile",
@@ -27,13 +32,24 @@
             return {
                 name: "",
                 street_name: "",
-                portrait: undefined,
-                memberPortrait: undefined
+                portrait: {},
+                memberPortrait: {}
             }
         },
-        mounted: function() {
+        mounted: async function() {
             this.name = this.currentMember.name;
             this.street_name = this.currentMember.street_name;
+            let result = await this.$store.dispatch('loadOrUseMember', {
+                memberId: this.currentMember.id
+            });
+            this.memberPortrait = result.portrait;
+        },
+        computed: {
+            portraitoriginal() { return this.memberPortrait.original ? this.memberPortrait.original.url() : ""; },
+            portraitthumb_32() { return this.memberPortrait.thumb_32 ? this.memberPortrait.thumb_32.url() : ""; },
+            portraitthumb_64() { return this.memberPortrait.thumb_64 ? this.memberPortrait.thumb_64.url() : ""; },
+            portraitthumb_128() { return this.memberPortrait.thumb_128 ? this.memberPortrait.thumb_128.url() : ""; },
+            portraitthumb_256() { return this.memberPortrait.thumb_256 ? this.memberPortrait.thumb_256.url() : ""; }
         },
         methods: {
             async save() {
@@ -43,8 +59,14 @@
                 this.memberPortrait = await this.memberPortrait.save();
                 await this.$store.dispatch('updateAndSaveCurrentMember', {
                     name: this.name,
-                    street_name: this.street_name
+                    street_name: this.street_name,
+                    portrait: this.memberPortrait
                 });
+                let result = await this.$store.dispatch('loadOrUseMember', {
+                    memberId: this.currentMember.id,
+                    force: true
+                });
+                this.memberPortrait = result.portrait;
             },
             async handleFileChange(event) {
                 if (event.target.files.length !== 1) {

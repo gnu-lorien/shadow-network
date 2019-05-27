@@ -6,8 +6,62 @@ import Resource from '@/models/resource.js';
 import Component from '@/models/component.js';
 import TradeSync from '@/models/tradesync.js';
 import TradeOffer from '@/models/tradeoffer.js';
+import MemberPortrait from '@/models/memberportrait.js'
 
-Vue.use(Vuex)
+Vue.use(Vuex);
+
+let MembersModule = {
+    state: {
+        members: {},
+        remoteMembers: {},
+        portraits: {},
+        remotePortraits: {},
+    },
+    mutations: {
+        setMember(state, parseMember) {
+            state.remoteMembers[parseMember.id] = parseMember;
+            const member = {}
+            member.id = parseMember.id;
+            for (const key in parseMember.attributes) {
+                Vue.set(member, `${key}`, parseMember.get(key));
+            }
+            Vue.set(state.members, member.id, member);
+        },
+        setMemberPortrait(state, params) {
+            let memberId = params.memberId;
+            let parsePortrait = params.memberPortrait;
+            state.remotePortraits[memberId] = parsePortrait;
+            const portrait = {}
+            portrait.id = memberId;
+            for (const key in parsePortrait.attributes) {
+                Vue.set(portrait, `${key}`, parsePortrait.get(key));
+            }
+            Vue.set(state.portraits, memberId, portrait);
+        },
+    },
+    actions: {
+        async loadOrUseMember(context, { memberId, force } ) {
+            let member = context.state.members[memberId];
+            if (member === undefined || force) {
+                member = await new Parse.Query(Member).get(memberId);
+                context.commit('setMember', member);
+                if (member.get('portrait')) {
+                    let memberPortrait = await new Parse.Query(MemberPortrait).get(member.get('portrait').id);
+                    context.commit('setMemberPortrait', {
+                        memberId: memberId,
+                        memberPortrait: memberPortrait
+                    });
+                }
+                member = context.state.members[memberId];
+            }
+
+            return Promise.resolve({
+                member: member,
+                portrait: context.state.portraits[memberId]
+            });
+        }
+    }
+};
 
 let MemberModule = {
     state: {
@@ -35,7 +89,7 @@ let MemberModule = {
         }
     },
     actions: {
-        loadOrUseMember(context, memberId) {
+        loadOrUseCurrentMember(context, memberId) {
             if (context.state.member.id === memberId) {
                 return Promise.resolve();
             }
@@ -517,7 +571,8 @@ export default new Vuex.Store({
         member: MemberModule,
         resources: ResourcesModule,
         components: ComponentsModule,
-        trading: TradingModule
+        trading: TradingModule,
+        members: MembersModule
     }
 });
 

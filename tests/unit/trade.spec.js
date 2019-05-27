@@ -205,7 +205,7 @@ describe('member/Trade.vue', () => {
             themId: themId,
             meId: meId
         });
-        await store.dispatch('loadOrUseMember', meId);
+        await store.dispatch('loadOrUseCurrentMember', meId);
         let {remote: resource} = await store.dispatch('createNewResource', themId);
         await Parse.User.logOut();
         await Parse.User.logIn(
