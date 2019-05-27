@@ -6,7 +6,9 @@
             <member-summary class="row" v-for="id in members" :key="id" :memberId="id" @member-selected="select"/>
         </div>
         <b-list-group>
-            <b-list-group-item v-for="syncId in syncIds" :key="syncId" @click="openTrade(syncId)">Trade: {{syncId}}</b-list-group-item>
+            <b-list-group-item v-for="syncId in syncIds" :key="syncId" @click="openTrade(syncId)">
+                Trade between {{getSync(syncId).get('leftMember').get('street_name')}} and {{getSync(syncId).get('rightMember').get('street_name')}}
+            </b-list-group-item>
         </b-list-group>
     </div>
 </template>
@@ -44,6 +46,9 @@
                         noCompleted: true
                     }
                 });
+            },
+            getSync(syncId) {
+                return this.$store.state.trading.remoteSyncs[syncId];
             },
             async initiatingATrade() {
                 let user = Parse.User.current();

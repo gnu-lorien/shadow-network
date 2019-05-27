@@ -306,6 +306,8 @@ let TradingModule = {
                 let syncIds = [];
                 await q.each(async (sync) => {
                     syncIds.push(sync.id);
+                    await sync.get('leftMember').fetch();
+                    await sync.get('rightMember').fetch();
                     context.state.remoteSyncs[sync.id] = sync;
                 });
                 return Promise.resolve(syncIds);
