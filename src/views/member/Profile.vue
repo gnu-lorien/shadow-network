@@ -53,15 +53,23 @@
         },
         methods: {
             async save() {
-                this.portrait = await this.portrait.save();
-                this.memberPortrait = new MemberPortrait();
-                this.memberPortrait.set('original', this.portrait);
-                this.memberPortrait = await this.memberPortrait.save();
-                await this.$store.dispatch('updateAndSaveCurrentMember', {
-                    name: this.name,
-                    street_name: this.street_name,
-                    portrait: this.memberPortrait
-                });
+                if (this.portrait) {
+                    this.portrait = await this.portrait.save();
+                    this.memberPortrait = new MemberPortrait();
+                    this.memberPortrait.set('original', this.portrait);
+                    this.memberPortrait = await this.memberPortrait.save();
+                    await this.$store.dispatch('updateAndSaveCurrentMember', {
+                        name: this.name,
+                        street_name: this.street_name,
+                        portrait: this.memberPortrait
+                    });
+                } else {
+                    await this.$store.dispatch('updateAndSaveCurrentMember', {
+                        name: this.name,
+                        street_name: this.street_name,
+                        portrait: this.memberPortrait
+                    });
+                }
                 let result = await this.$store.dispatch('loadOrUseMember', {
                     memberId: this.currentMember.id,
                     force: true
