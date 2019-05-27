@@ -49,14 +49,12 @@
                 let user = Parse.User.current();
                 let userId = user.id;
                 const q = new Parse.Query(Member);
-                q.equalTo("owner", {
-                    __type: 'Pointer',
-                    className: '_User',
-                    objectId: userId
-                });
                 q.select("id");
-                let members = await q.find();
-                this.members = members.map(member => member.id);
+                let members = [];
+                q.each((member) => {
+                    members.push(member.id);
+                });
+                this.members = members;
                 this.initiating = true;
             },
             async select(memberId) {
