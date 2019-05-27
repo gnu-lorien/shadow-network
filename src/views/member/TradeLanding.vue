@@ -11,14 +11,14 @@
                 <b-card bg-variant="dark" text-variant="white" border-variant="primary">
                     <b-card-header>{{currentMember.street_name}}</b-card-header>
                     <b-card-body v-if="!adding">
-                        <button v-on:click="add">Add</button>
+                        <button v-on:click="add">Add Resources to Trade</button>
                         <resource-summary class="row" v-for="id in me.resources" :key="id" :resourceId="id" :memberId="memberId">
-                            <button v-on:click="removeFromMyResources(id)">Remove</button>
+                            <button v-on:click="removeFromMyResources(id)">Remove Resource from Trade</button>
                         </resource-summary>
                     </b-card-body>
                     <b-card-body v-if="adding">
                         <resource-summary class="row" v-for="id in resources" :key="id" :resourceId="id" :memberId="memberId">
-                            <button v-on:click="addToMyResources(id)">Add</button>
+                            <button v-on:click="addToMyResources(id)">Add Resource to Trade</button>
                         </resource-summary>
                     </b-card-body>
                 </b-card>
