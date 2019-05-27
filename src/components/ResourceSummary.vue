@@ -1,16 +1,19 @@
 <template>
     <div>
-        <b-card>
+        <b-card class="w-100">
             <b-card-title>{{resource.name}}</b-card-title>
-            <b-card-sub-title v-if="showIds">{{resource.id}}</b-card-sub-title>
+            <b-card-sub-title v-if="showIds">
+                {{resource.id}}
+                <slot>
+                    <button v-on:click="edit">Edit {{resource.name}}</button>
+                    <button v-on:click="remove">Delete {{resource.name}}</button>
+                </slot>
+            </b-card-sub-title>
             <b-list-group>
                 <component-summary v-for="id in componentIds" :key="id" :componentId="id" :memberId="memberId" :resourceId="resourceId" />
             </b-list-group>
             <b-card-footer>
-                <slot>
-                    <button v-on:click="edit">Edit</button>
-                    <button v-on:click="remove">Delete</button>
-                </slot>
+
             </b-card-footer>
         </b-card>
     </div>

@@ -1,16 +1,14 @@
 <template>
     <b-list-group-item href="#" type="secondary" class="flex-column align-items-start" v-if="!editing" v-on:click="edit">
         <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">{{component.short}}</h5>
-            <small>{{component.bonus}}</small>
-            <small>{{component.id}}</small>
+            <h5 class="mb-1">{{component.short}}<span v-if="component.bonus"> : +{{component.bonus}}</span></h5>
         </div>
 
         <p class="mb-1">
             {{component.long}}
         </p>
 
-        <small>{{component.credit}}¥</small>
+        <small v-if="component.credit">{{component.credit}}¥</small>
     </b-list-group-item>
     <div class="col" v-else>
         <div class="row">
