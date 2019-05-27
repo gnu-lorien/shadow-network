@@ -12,6 +12,7 @@ import MemberTrading from './views/member/Trading.vue'
 import MemberVault from './views/member/Vault.vue'
 import MemberProfile from './views/member/Profile.vue'
 import MemberTradeLanding from './views/member/TradeLanding.vue'
+import GameMasterLanding from './views/gamemaster/Landing.vue'
 import store from './store'
 
 Vue.use(Router)
@@ -34,6 +35,14 @@ const router = new Router({
             component: Login,
             meta: {
                 authorizationOptional: true,
+            }
+        },
+        {
+            path: '/gamemaster',
+            name: 'gamemaster',
+            component: GameMasterLanding,
+            meta: {
+                requiredRoles: ['gamemaster']
             }
         },
         {
@@ -124,8 +133,9 @@ const router = new Router({
     ]
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     store.commit('setUser', Parse.User.current());
+    let roles = await store.dispatch('updateUserRoles');
 
     if (to.meta.authorizationOptional) {
         next();
@@ -138,13 +148,29 @@ router.beforeEach((to, from, next) => {
     }
 
     if (to.meta.autoLoadMember) {
-        return store.dispatch('loadOrUseCurrentMember', to.params.memberId)
-            .then(() => {
-                next();
-            })
-            .catch(function (e) {
-                alert("Failed to load member " + e.message());
-            });
+        try {
+            await store.dispatch('loadOrUseCurrentMember', to.params.memberId)
+            next();
+        } catch(e) {
+            alert("Failed to load member " + e.message());
+        }
+    }
+
+    if (to.meta.requiredRoles) {
+        if (roles === undefined) {
+            alert("Don't have required roles " + to.meta.requiredRoles);
+            return;
+        }
+        for (let requiredRole of to.meta.requiredRoles) {
+            for (let role of roles) {
+                if (requiredRole === role) {
+                    next();
+                    return;
+                }
+            }
+        }
+        alert("Don't have required roles " + to.meta.requiredRoles);
+        return;
     }
 
     next();
