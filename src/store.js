@@ -15,7 +15,8 @@ let MemberModule = {
             id: "",
             name: ""
         },
-        resourceIds: []
+        resourceIds: [],
+        resourcesCount: 0
     },
     mutations: {
         setCurrentMember(state, member) {
@@ -44,8 +45,13 @@ let MemberModule = {
                     context.commit('setCurrentMember', member);
                 });
         },
-        async loadOrUseCurrentMemberResourceIds(context) {
-            context.state.resourceIds = await context.dispatch('loadOrUseResourceIds', context.state.member.id);
+        async loadOrUseCurrentMemberResourceIds(context, page) {
+            let result = await context.dispatch('loadOrUseResourceIds', {
+                memberId: context.state.member.id,
+                page: page
+            });
+            context.state.resourceIds = result.resourceIds;
+            context.state.resourcesCount = result.count;
         },
         async updateAndSaveCurrentMember(context, newAttributes) {
             const q = new Parse.Query(Member);
@@ -88,7 +94,7 @@ let ResourcesModule = {
         }
     },
     actions: {
-        async loadOrUseResourceIds(context, memberId) {
+        async loadOrUseAllResourceIds(context, memberId) {
             const q = new Parse.Query(Resource).equalTo("member", {
                 __type: 'Pointer',
                 className: 'Member',
@@ -97,8 +103,27 @@ let ResourcesModule = {
             let resourceIds = [];
             await q.each((resource) => {
                 resourceIds.push(resource.id);
-            })
+            });
             return Promise.resolve(resourceIds);
+        },
+        async loadOrUseResourceIds(context, {memberId, page}) {
+            const countq = new Parse.Query(Resource).equalTo("member", {
+                __type: 'Pointer',
+                className: 'Member',
+                objectId: memberId
+            });
+            let count = await countq.count();
+            const q = new Parse.Query(Resource).equalTo("member", {
+                __type: 'Pointer',
+                className: 'Member',
+                objectId: memberId
+            }).select("id").skip(10 * (page - 1)).limit(10);
+            let resources = await q.find();
+            let resourceIds = resources.map(resource => resource.id);
+            return Promise.resolve({
+                resourceIds: resourceIds,
+                count: count
+            });
         },
         loadOrUseResource(context, resourceId) {
             if (context.state.resources[resourceId] !== undefined) {
@@ -152,7 +177,6 @@ let ResourcesModule = {
             acl.setPublicReadAccess(false);
             acl.setPublicWriteAccess(false);
             resource.setACL(acl);
-
 
             resource.set('member', new Member({id: memberId}));
             resource.set('name', 'Unknown name');

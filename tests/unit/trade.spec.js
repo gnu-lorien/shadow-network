@@ -237,10 +237,10 @@ describe('member/Trade.vue', () => {
         await store.dispatch('completeTrade', {
             syncId: result.sync.id
         });
-        await store.dispatch('loadOrUseCurrentMemberResourceIds');
+        await store.dispatch('loadOrUseAllResourceIds', meId);
         expect(store.state.member.resourceIds).to.be.an('array').that.includes(resource.id);
 
-        let resourceIds = await store.dispatch('loadOrUseResourceIds', themId);
+        let resourceIds = await store.dispatch('loadOrUseAllResourceIds', themId);
         expect(resourceIds).to.be.an('array').that.does.not.include(resource.id);
     });
 

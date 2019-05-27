@@ -2,7 +2,7 @@
     <div>
         <b-card>
             <b-card-title>{{resource.name}}</b-card-title>
-            <b-card-sub-title>{{resource.id}}</b-card-sub-title>
+            <b-card-sub-title v-if="showIds">{{resource.id}}</b-card-sub-title>
             <b-list-group>
                 <component-summary v-for="id in componentIds" :key="id" :componentId="id" :memberId="memberId" :resourceId="resourceId" />
             </b-list-group>
@@ -33,6 +33,9 @@
             },
             componentIds() {
                 return this.resource.componentIds;
+            },
+            showIds() {
+                return process.env.VUE_APP_SHOW_IDS;
             }
         },
         mounted: function () {

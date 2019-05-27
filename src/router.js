@@ -53,7 +53,10 @@ const router = new Router({
                 {
                     path: 'resources',
                     name: 'memberResources',
-                    props: true,
+                    props: (route) => ({
+                        memberId: route.params.memberId,
+                        page: route.query.page
+                    }),
                     component: MemberResources,
                     meta: {
                         autoLoadMember: true,

@@ -80,7 +80,7 @@
         },
         methods: {
             async fetch() {
-                await this.$store.dispatch('loadOrUseCurrentMemberResourceIds');
+                await this.$store.dispatch('loadOrUseCurrentMemberResourceIds', 1);
                 let result = await this.$store.dispatch('loadOrUseTrade', {
                     memberId: this.$props.memberId,
                     syncId: this.$props.syncId
