@@ -261,24 +261,36 @@ let TradingModule = {
     },
     actions: {
         async loadOrUseTradeIds(context, {memberId, filters}) {
-            const q = new Parse.Query(TradeOffer).equalTo("member", {
-                __type: 'Pointer',
-                className: 'Member',
-                objectId: memberId
-            }).select("tradesync");
-            let offers = await q.find();
-            let syncIds = offers.map((offer) => { return offer.get('tradesync').id});
             if (filters) {
-                let syncsq = new Parse.Query(TradeSync)
+                const leftq = new Parse.Query(TradeSync).equalTo("leftMember", {
+                    __type: 'Pointer',
+                    className: 'Member',
+                    objectId: memberId
+                });
+                const rightq = new Parse.Query(TradeSync).equalTo("rightMember", {
+                    __type: 'Pointer',
+                    className: 'Member',
+                    objectId: memberId
+                });
+                const q = Parse.Query.or(leftq, rightq)
                     .notEqualTo("started", filters.noStarted)
                     .notEqualTo("completed", filters.noCompleted);
-                syncIds = [];
-                await syncsq.each((sync) => {
+                let syncIds = [];
+                await q.each(async (sync) => {
                     syncIds.push(sync.id);
                     context.state.remoteSyncs[sync.id] = sync;
                 });
+                return Promise.resolve(syncIds);
+            } else {
+                const q = new Parse.Query(TradeOffer).equalTo("member", {
+                    __type: 'Pointer',
+                    className: 'Member',
+                    objectId: memberId
+                }).select("tradesync");
+                let offers = await q.find();
+                let syncIds = offers.map((offer) => { return offer.get('tradesync').id});
+                return Promise.resolve(syncIds);
             }
-            return Promise.resolve(syncIds);
         },
         async loadOrUseTrade(context, {memberId, syncId}) {
             let sync = await new Parse.Query(TradeSync).get(syncId);

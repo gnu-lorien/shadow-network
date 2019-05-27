@@ -18,6 +18,8 @@ Parse.Cloud.define('initiateTradeWith', async (request) => {
 
     let sync = new TradeSync({
         counter: 1,
+        leftMember: me,
+        rightMember: them
     });
     let syncAcl = new Parse.ACL();
     syncAcl.setPublicReadAccess(false);

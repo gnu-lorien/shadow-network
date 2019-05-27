@@ -23,14 +23,6 @@ describe('member/Trade.vue', () => {
 
     });
 
-    it('renders props.msg when passed', () => {
-        const msg = 'new message'
-        const wrapper = shallowMount(HelloWorld, {
-            propsData: { msg }
-        })
-        expect(wrapper.text()).to.include(msg);
-    });
-
     it('can initiate a trade', async () => {
         let result = await store.dispatch('initiateTradeWith', {
             themId: themId,
