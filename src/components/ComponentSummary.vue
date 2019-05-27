@@ -5,7 +5,7 @@
         </div>
 
         <p class="mb-1">
-            {{component.long}}
+            <pre>{{component.long}}</pre>
         </p>
 
         <small v-if="component.credit">{{component.credit}}¥</small>
