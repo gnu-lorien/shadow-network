@@ -4,7 +4,8 @@
             <li class="breadcrumb-item active">Name</li>
             <li class="breadcrumb-item ">{{ currentMember.name }}</li>
             <li class="breadcrumb-item active ">Handle</li>
-            <li class="breadcrumb-item ">{{ currentMember.street_name}} </li>
+            <li class="breadcrumb-item "><img :src="currentportraitthumb_32"/></li>
+            <li class="breadcrumb-item ">{{ currentMember.street_name}}</li>
         </ol>
     </div>
 </template>

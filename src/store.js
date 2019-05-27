@@ -57,6 +57,7 @@ let MembersModule = {
 
             return Promise.resolve({
                 member: member,
+                remoteMember: context.state.remoteMembers[memberId],
                 portrait: context.state.portraits[memberId]
             });
         }
@@ -89,15 +90,15 @@ let MemberModule = {
         }
     },
     actions: {
-        loadOrUseCurrentMember(context, memberId) {
+        async loadOrUseCurrentMember(context, memberId) {
             if (context.state.member.id === memberId) {
                 return Promise.resolve();
             }
-            const q = new Parse.Query(Member);
-            return q.get(memberId)
-                .then((member) => {
-                    context.commit('setCurrentMember', member);
-                });
+            let result = await context.dispatch('loadOrUseMember', {
+                memberId: memberId,
+                force: true
+            });
+            context.commit('setCurrentMember', result.remoteMember);
         },
         async loadOrUseCurrentMemberResourceIds(context, page) {
             let result = await context.dispatch('loadOrUseResourceIds', {
