@@ -316,23 +316,44 @@ let fixMemberPermissions = async function(member) {
         acl.setPublicWriteAccess(false);
         acl.setRoleWriteAccess('gamemaster', true);
         acl.setRoleReadAccess('gamemaster', true);
-        acl.setWriteAccess(user, true);
-        acl.setReadAccess(user, true);
-        let themMember;
+        let leftUserId, rightUserId;
         if (sync.get('leftMember').id === member.id) {
-            themMember = await sync.get('rightMember').fetch({useMasterKey: true});
+            let rightMember = await sync.get('rightMember').fetch({useMasterKey: true});
+            rightUserId = rightMember.get('owner').id;
+            leftUserId = user.id;
         } else {
-            themMember = await sync.get('leftMember').fetch({useMasterKey: true});
+            let leftMember = await sync.get('leftMember').fetch({useMasterKey: true});
+            leftUserId = leftMember.get('owner').id;
+            rightUserId = user.id;
         }
-        acl.setWriteAccess(themMember.get('owner').id, true);
-        acl.setReadAccess(themMember.get('owner').id, true);
+        acl.setWriteAccess(leftUserId, true);
+        acl.setReadAccess(leftUserId, true);
+        acl.setWriteAccess(rightUserId, true);
+        acl.setReadAccess(rightUserId, true);
         await sync.save(null, {useMasterKey: true});
 
         // TradeOffers
-        acl.setWriteAccess(themMember.get('owner').id, false);
+        if (leftUserId === rightUserId) {
+            acl.setWriteAccess(leftUserId, true);
+            acl.setReadAccess(leftUserId, true);
+        } else {
+            acl.setWriteAccess(leftUserId, true);
+            acl.setReadAccess(leftUserId, true);
+            acl.setWriteAccess(rightUserId, false);
+            acl.setReadAccess(rightUserId, true);
+        }
         let left = await sync.get('left').fetch({useMasterKey: true});
         left.setACL(acl);
         await left.save(null, {useMasterKey: true});
+        if (leftUserId === rightUserId) {
+            acl.setWriteAccess(rightUserId, true);
+            acl.setReadAccess(rightUserId, true);
+        } else {
+            acl.setWriteAccess(leftUserId, false);
+            acl.setReadAccess(leftUserId, true);
+            acl.setWriteAccess(rightUserId, true);
+            acl.setReadAccess(rightUserId, true);
+        }
         let right = await sync.get('right').fetch({useMasterKey: true});
         right.setACL(acl);
         await right.save(null, {useMasterKey: true});
