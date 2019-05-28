@@ -46,6 +46,8 @@
                 const acl = new Parse.ACL();
                 acl.setWriteAccess(Parse.User.current(), true);
                 acl.setPublicReadAccess(true);
+                acl.setRoleReadAccess('gamemaster', true);
+                acl.setRoleWriteAccess('gamemaster', true);
                 member.setACL(acl);
 
                 member.set('owner', Parse.User.current());

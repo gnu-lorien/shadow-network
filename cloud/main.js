@@ -4,6 +4,7 @@ let TradeOffer = Parse.Object.extend("TradeOffer");
 let Member = Parse.Object.extend("Member");
 let Resource = Parse.Object.extend("Resource");
 let MemberPortrait = Parse.Object.extend("MemberPortrait");
+let Component = Parse.Object.extend("Component");
 let Image = require('jimp');
 
 Parse.Cloud.define('hello', async (request) => {
@@ -256,4 +257,108 @@ Parse.Cloud.define('doTheCrop', async (request) => {
 
 Parse.Cloud.beforeSave('MemberPortrait', async (request) => {
     await crop_and_thumb(request.object);
+});
+
+let fixMemberPermissions = async function(member) {
+    // Member
+    const owner = member.get('owner');
+    const user = await new Parse.Query(Parse.User).get(owner.id, {useMasterKey: true});
+    const memberAcl = new Parse.ACL();
+    memberAcl.setPublicReadAccess(true);
+    memberAcl.setWriteAccess(user, true);
+    memberAcl.setRoleReadAccess('gamemaster', true);
+    memberAcl.setRoleWriteAccess('gamemaster', true);
+    member.setACL(memberAcl);
+    await member.save(null, {useMasterKey: true});
+    // Resources
+    let q = new Parse.Query(Resource).equalTo('member', {
+        __type: 'Pointer',
+        className: 'Member',
+        objectId: member.id
+    });
+    await q.each(async (resource) => {
+        const acl = new Parse.ACL();
+        acl.setPublicReadAccess(false);
+        acl.setPublicReadAccess(true);
+        acl.setReadAccess(user, true);
+        acl.setWriteAccess(user, true);
+        acl.setRoleReadAccess('gamemaster', true);
+        acl.setRoleWriteAccess('gamemaster', true);
+        resource.setACL(acl);
+        await resource.save(null, {useMasterKey: true});
+
+        // Components
+        let q = new Parse.Query(Component).equalTo('resource', {
+            __type: 'Pointer',
+            className: 'Resource',
+            objectId: resource.id
+        });
+        await q.each(async (component) => {
+            component.setACL(acl);
+            await component.save(null, {useMasterKey: true});
+        }, {useMasterKey: true});
+    }, {useMasterKey: true});
+    // TradeSyncs
+    const leftq = new Parse.Query(TradeSync).equalTo("leftMember", {
+        __type: 'Pointer',
+        className: 'Member',
+        objectId: member.id
+    });
+    const rightq = new Parse.Query(TradeSync).equalTo("rightMember", {
+        __type: 'Pointer',
+        className: 'Member',
+        objectId: member.id
+    });
+    q = Parse.Query.or(leftq, rightq);
+    await q.each(async (sync) => {
+        const acl = new Parse.ACL();
+        acl.setPublicReadAccess(false);
+        acl.setPublicWriteAccess(false);
+        acl.setRoleWriteAccess('gamemaster', true);
+        acl.setRoleReadAccess('gamemaster', true);
+        acl.setWriteAccess(user, true);
+        acl.setReadAccess(user, true);
+        let themMember;
+        if (sync.get('leftMember').id === member.id) {
+            themMember = await sync.get('rightMember').fetch({useMasterKey: true});
+        } else {
+            themMember = await sync.get('leftMember').fetch({useMasterKey: true});
+        }
+        acl.setWriteAccess(themMember.get('owner').id, true);
+        acl.setReadAccess(themMember.get('owner').id, true);
+        await sync.save(null, {useMasterKey: true});
+
+        // TradeOffers
+        acl.setWriteAccess(themMember.get('owner').id, false);
+        let left = await sync.get('left').fetch({useMasterKey: true});
+        left.setACL(acl);
+        await left.save(null, {useMasterKey: true});
+        let right = await sync.get('right').fetch({useMasterKey: true});
+        right.setACL(acl);
+        await right.save(null, {useMasterKey: true});
+    }, {useMasterKey: true});
+};
+
+Parse.Cloud.define('transferMemberTo', async (request) => {
+    const user = await new Parse.Query(Parse.User).get(request.params.userId);
+    const member = await new Parse.Query(Member).get(request.params.memberId);
+    member.set('owner', user);
+    let sessionToken = request.user.get('sessionToken');
+    await member.save(null, {sessionToken: sessionToken});
+    await fixMemberPermissions(member);
+});
+
+Parse.Cloud.define('giveAllMembersGamemasterAccess', async (request) => {
+    const q = new Parse.Query(Member);
+    await q.each(async (member) => {
+        let acl = member.getACL();
+        if (acl === null) {
+            await fixMemberPermissions(member);
+        } else {
+            acl.setRoleReadAccess('gamemaster', true);
+            acl.setRoleWriteAccess('gamemaster', true);
+            member.setACL(acl);
+            await member.save(null, {useMasterKey: true});
+        }
+    });
 });

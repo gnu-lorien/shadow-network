@@ -59,6 +59,7 @@
                 this.memberId = memberId;
             },
             async pickUser(user) {
+                await Parse.Cloud.run('giveAllMembersGamemasterAccess');
                 await Parse.Cloud.run('transferMemberTo', {
                     userId: user.id,
                     memberId: this.memberId

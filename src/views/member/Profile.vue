@@ -1,6 +1,6 @@
 <template>
     <div>
-        <img>
+        <form>
             <label>Name: </label>
             <input type="text" v-model="name"/>
             <label>Street Name:</label>
@@ -54,7 +54,6 @@
         methods: {
             async save() {
                 if (this.portrait.save) {
-                    console.log('break');
                     this.portrait = await this.portrait.save();
                     this.memberPortrait = new MemberPortrait();
                     this.memberPortrait.set('original', this.portrait);

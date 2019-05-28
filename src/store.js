@@ -404,6 +404,8 @@ let ComponentsModule = {
             const component = new Component();
             const acl = new Parse.ACL();
             acl.setWriteAccess(Parse.User.current(), true);
+            acl.setRoleReadAccess('gamemaster', true);
+            acl.setRoleWriteAccess('gamemaster', true);
             component.setACL(acl);
 
             component.set('short', "A short description");
