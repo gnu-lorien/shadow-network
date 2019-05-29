@@ -403,7 +403,7 @@ let ComponentsModule = {
         async createNewComponent(context, resourceId) {
             const component = new Component();
             const acl = new Parse.ACL();
-            acl.setWriteAccess(Parse.User.current(), true);
+            acl.setWriteAccess(context.rootState.resources.remoteResources[resourceId].get('member').id, true);
             acl.setRoleReadAccess('gamemaster', true);
             acl.setRoleWriteAccess('gamemaster', true);
             component.setACL(acl);
