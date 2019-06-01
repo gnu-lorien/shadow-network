@@ -1,6 +1,6 @@
 <template>
     <div v-if="hasCurrentMember">
-        <ol class="breadcrumb">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item active">Name</li>
             <li class="breadcrumb-item ">{{ currentMember.name }}</li>
             <li class="breadcrumb-item active ">Handle</li>
