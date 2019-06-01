@@ -72,7 +72,7 @@
                     });
             },
             select(memberId) {
-                this.$router.push({name: 'memberLanding', params: {memberId: memberId}});
+                this.$router.push({name: 'memberResources', params: {memberId: memberId}});
             },
         }
     }
