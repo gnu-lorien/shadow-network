@@ -1,10 +1,14 @@
 <template>
-    <div class="container">
-        <member-summary class="row" v-for="id in members" :key="id" :memberId="id" @member-selected="select"/>
+    <b-container>
+        <b-row align-v="start" v-for="memberIndex in rowCount" class="mb-2">
+            <b-col v-for="id in members.slice((memberIndex - 1) * membersPerRow, memberIndex * membersPerRow)" :key="id" sm>
+                <member-summary :memberId="id" @member-selected="select"/>
+            </b-col>
+        </b-row>
         <div class="row">
-            <button v-on:click="add">Add</button>
+            <button v-on:click="add">Create New Member</button>
         </div>
-    </div>
+    </b-container>
 </template>
 
 <script>
@@ -21,7 +25,13 @@
         },
         data: function () {
             return {
-                members: []
+                members: [],
+                membersPerRow: 4
+            }
+        },
+        computed: {
+            rowCount() {
+                return Math.ceil(this.members.length / this.membersPerRow);
             }
         },
         mounted: function () {

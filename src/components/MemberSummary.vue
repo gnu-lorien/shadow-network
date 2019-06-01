@@ -1,8 +1,12 @@
 <template>
-    <div>
-        <p><img :src="portraitthumb_64"/>{{member.street_name}} / {{member.id}}</p>
-        <p><button v-on:click="$emit('member-selected', member.id)">Select</button></p>
-    </div>
+    <b-card class="w-100 h-100 p-0 m-0" body-class="p-1">
+        <b-card-header class="p-0">
+            <img :src="portraitthumb_64"/>
+            <button class="ml-1" v-on:click="$emit('member-selected', member.id)">Select</button>
+        </b-card-header>
+        <b-card-title>{{member.street_name}}</b-card-title>
+        <b-card-sub-title>{{member.id}}</b-card-sub-title>
+    </b-card>
 </template>
 
 <script>
