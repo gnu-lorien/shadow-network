@@ -1,6 +1,6 @@
 <template>
     <div class="container" v-if="needSelection">
-        <member-select @member-selected="select"></member-select>
+        <member-select @member-selected="select" filter="all"></member-select>
     </div>
     <div class="container" v-else>
         <div class="row" v-for="user in users" :key="user.id">
