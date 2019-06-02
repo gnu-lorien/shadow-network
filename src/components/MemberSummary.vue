@@ -10,9 +10,6 @@
 </template>
 
 <script>
-    import Parse from 'parse';
-    let Member = Parse.Object.extend("Member");
-    import Vue from 'vue';
     export default {
         name: "MemberSummary",
         props: [
