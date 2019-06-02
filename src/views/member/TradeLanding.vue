@@ -7,12 +7,20 @@
                     <template slot="lead">Transfer resources between two members of the same shadow network</template>
                     <p>Each side may offer their resources and the system automatically transfers them when both sides accept.</p>
                     <div v-if="0 !== me.resources.length">
-                    <p>You are offering:</p>
-                    <ul>
-                        <li v-for="id in me.resources" :key="id">
-                            <resource-summary :resourceId="id" :memberId="memberId" :textonly="true"></resource-summary>
-                        </li>
-                    </ul>
+                        <p>You are offering:</p>
+                        <ul>
+                            <li v-for="id in me.resources" :key="id">
+                                <resource-summary :resourceId="id" :memberId="memberId" :textonly="true"></resource-summary>
+                            </li>
+                        </ul>
+                    </div>
+                    <div v-if="0 !== them.resources.length">
+                        <p>They are offering:</p>
+                        <ul>
+                            <li v-for="id in them.resources" :key="id">
+                                <resource-summary :resourceId="id" :memberId="memberId" :textonly="true"></resource-summary>
+                            </li>
+                        </ul>
                     </div>
                 <b-button v-on:click="acceptTrade">Accept</b-button>
                 <b-button v-on:click="refresh">Refresh</b-button>
