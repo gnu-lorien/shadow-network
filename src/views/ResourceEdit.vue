@@ -14,7 +14,7 @@
                     <b-form-group
                         id="resource-edit-group-2"
                         label-cols="2"
-                        description="Which order to display this resource."
+                        description="Which order to display this resource. Larger numbers display at the top."
                         label="Order"
                         label-for="inputOrder">
                         <b-form-input v-model="resource.order" id="inputOrder"/>
