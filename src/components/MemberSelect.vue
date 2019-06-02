@@ -18,6 +18,9 @@
 
     export default {
         name: "MemberSelect",
+        props: [
+            "added"
+        ],
         components: {
             MemberSummary
         },
@@ -32,8 +35,13 @@
                 return Math.ceil(this.members.length / this.membersPerRow);
             }
         },
-        mounted: function () {
-            this.fetch();
+        mounted: async function () {
+            await this.fetch();
+        },
+        watch: {
+            async added() {
+                await this.fetch();
+            }
         },
         methods: {
             async fetch() {
