@@ -628,15 +628,11 @@ let TradingModule = {
         },
         async updateTrade(context, {syncId}) {
             let sync = context.state.remoteSyncs[syncId];
-            let updateOffers = false;
             if (sync === undefined) {
                 sync = await new Parse.Query(TradeSync).get(syncId);
                 context.state.remoteSyncs[sync.id] = sync;
-                updateOffers = true;
             } else {
-                let currentCounter = sync.get('counter');
                 sync = await sync.fetch();
-                updateOffers = currentCounter !== sync.get('counter');
             }
             context.commit('setSync', sync);
 
