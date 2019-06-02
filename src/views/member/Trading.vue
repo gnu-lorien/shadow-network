@@ -51,8 +51,6 @@
                 return this.$store.state.trading.remoteSyncs[syncId];
             },
             async initiatingATrade() {
-                let user = Parse.User.current();
-                let userId = user.id;
                 const q = new Parse.Query(Member);
                 q.select("id");
                 let members = [];

@@ -259,8 +259,8 @@ let ResourcesModule = {
                 count: count
             });
         },
-        loadOrUseResource(context, resourceId) {
-            if (context.state.resources[resourceId] !== undefined) {
+        loadOrUseResource(context, {resourceId, force}) {
+            if (context.state.resources[resourceId] !== undefined && !force) {
                 return Promise.resolve(context.state.resources[resourceId]);
             }
             const q = new Parse.Query(Resource);

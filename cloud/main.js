@@ -16,7 +16,7 @@ Parse.Cloud.define('initiateTradeWith', async (request) => {
     let themId = request.params.themId;
     let me = await new Parse.Query(Member).get(meId);
     let them = await new Parse.Query(Member).get(themId);
-    let meUser = request.user;
+    let meUser = new Parse.User({id: me.get('owner').id});
     let themUser = new Parse.User({id: them.get('owner').id});
 
     let sync = new TradeSync({

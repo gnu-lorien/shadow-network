@@ -241,8 +241,13 @@ describe('member/Trade.vue', () => {
         await store.dispatch('completeTrade', {
             syncId: result.sync.id
         });
-        await store.dispatch('loadOrUseAllResourceIds', this.meId);
-        expect(store.state.member.resourceIds).to.be.an('array').that.includes(resource.id);
+        await store.dispatch('loadOrUseResource', {
+            resourceId: resource.id,
+            force: true
+        });
+        let newResource = store.state.resources.remoteResources[resource.id];
+        expect(newResource).to.be.an('object');
+        expect(newResource.get('member').id).to.equal(this.meId);
 
         let resourceIds = await store.dispatch('loadOrUseAllResourceIds', this.themId);
         expect(resourceIds).to.be.an('array').that.does.not.include(resource.id);
@@ -265,4 +270,80 @@ describe('member/Trade.vue', () => {
         expect.fail("Not implemented.");
     });
      */
+});
+
+describe('gamemaster/Trade.vue', () => {
+    before(function () {
+        Parse.serverURL = process.env.VUE_APP_PARSE_SERVER_URL;
+        Parse.initialize(
+            'APPLICATION_ID', // This is your Application ID
+            'g8q6x9uvsept5Sjfz3hdiiP3mh5mgOoda2rZeP4I' // This is your Javascript key
+        );
+        this.meId = "UjAJB34E6d";
+        this.themId = "tUl6fCXYD4";
+        return Parse.User.logIn(
+            process.env.VUE_APP_TEST_GAMEMASTER_USERNAME,
+            process.env.VUE_APP_TEST_GAMEMASTER_PASSWORD)
+            .finally(() => {
+                expect(Parse.User.current()).not.to.equal(undefined);
+            });
+
+    });
+
+    tradeWithoutChangingLogin();
+
+    it("can complete a full trade from another to me", async function() {
+        let result;
+        result = await store.dispatch('initiateTradeWith', {
+            themId: this.themId,
+            meId: this.meId
+        });
+
+        await Parse.User.logOut();
+        await Parse.User.logIn(
+            process.env.VUE_APP_TEST_USERNAME,
+            process.env.VUE_APP_TEST_PASSWORD);
+        await store.dispatch('loadOrUseCurrentMember', this.meId);
+        let {remote: resource} = await store.dispatch('createNewResource', this.themId);
+        await Parse.User.logOut();
+        await Parse.User.logIn(
+            process.env.VUE_APP_TEST_THEM_USERNAME,
+            process.env.VUE_APP_TEST_THEM_PASSWORD);
+        result = await store.dispatch('addResourceToTrade', {
+            syncId: result.sync.id,
+            resourceId: resource.id,
+            memberId: this.themId
+        });
+        result = await store.dispatch('updateTrade', {
+            syncId: result.sync.id,
+        });
+        await store.dispatch('acceptTradeAs', {
+            syncId: result.sync.id,
+            memberId: this.themId
+        });
+        await Parse.User.logOut();
+        await Parse.User.logIn(
+            process.env.VUE_APP_TEST_USERNAME,
+            process.env.VUE_APP_TEST_PASSWORD);
+        result = await store.dispatch('updateTrade', {
+            syncId: result.sync.id,
+        });
+        await store.dispatch('acceptTradeAs', {
+            syncId: result.sync.id,
+            memberId: this.meId
+        });
+        await store.dispatch('completeTrade', {
+            syncId: result.sync.id
+        });
+        await store.dispatch('loadOrUseResource', {
+            resourceId: resource.id,
+            force: true
+        });
+        let newResource = store.state.resources.remoteResources[resource.id];
+        expect(newResource).to.be.an('object');
+        expect(newResource.get('member').id).to.equal(this.meId);
+
+        let resourceIds = await store.dispatch('loadOrUseAllResourceIds', this.themId);
+        expect(resourceIds).to.be.an('array').that.does.not.include(resource.id);
+    });
 });
