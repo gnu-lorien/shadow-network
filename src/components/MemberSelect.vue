@@ -6,11 +6,6 @@
             </b-col>
         </b-row>
         <slot>
-            <!--
-        <div class="row">
-            <button v-on:click="add">Create New Member</button>
-        </div>
-        -->
         </slot>
     </b-container>
 </template>

@@ -1,56 +1,23 @@
 <template>
-    <b-container>
-        <b-row align-v="start" v-for="memberIndex in rowCount" class="mb-2">
-            <b-col v-for="id in members.slice((memberIndex - 1) * membersPerRow, memberIndex * membersPerRow)" :key="id" sm>
-                <member-summary :memberId="id" @member-selected="select"/>
-            </b-col>
-        </b-row>
+    <member-select @member-selected="select">
         <div class="row">
             <button v-on:click="add">Create New Member</button>
         </div>
-    </b-container>
+    </member-select>
 </template>
 
 <script>
     import Parse from 'parse';
 
     let Member = Parse.Object.extend("Member");
-    import Vue from 'vue';
-    import MemberSummary from '@/components/MemberSummary.vue'
+    import MemberSelect from '@/components/MemberSelect.vue'
 
     export default {
         name: "Members.vue",
         components: {
-            MemberSummary
-        },
-        data: function () {
-            return {
-                members: [],
-                membersPerRow: 4
-            }
-        },
-        computed: {
-            rowCount() {
-                return Math.ceil(this.members.length / this.membersPerRow);
-            }
-        },
-        mounted: function () {
-            this.fetch();
+            MemberSelect
         },
         methods: {
-            async fetch() {
-                let user = Parse.User.current();
-                let userId = user.id;
-                const q = new Parse.Query(Member);
-                q.equalTo("owner", {
-                    __type: 'Pointer',
-                    className: '_User',
-                    objectId: userId
-                });
-                q.select("id");
-                let members = await q.find();
-                this.members = members.map(member => member.id);
-            },
             add() {
                 const member = new Member();
                 const acl = new Parse.ACL();

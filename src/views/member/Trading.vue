@@ -15,13 +15,11 @@
     import Parse from "parse";
     import Member from '@/models/member.js';
     import CurrentMember from '@/mixins/CurrentMember.js'
-    import MemberSummary from '@/components/MemberSummary.vue'
     import MemberSelect from '@/components/MemberSelect.vue'
 
     export default {
         name: "MemberTrading",
         components: {
-            MemberSummary,
             MemberSelect
         },
         props: [
