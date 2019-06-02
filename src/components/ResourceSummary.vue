@@ -1,5 +1,8 @@
 <template>
-    <div>
+    <span v-if="textonly">
+        {{resource.name}}/{{resource.id}}
+    </span>
+    <div v-else>
         <b-card class="w-100">
             <b-card-title>{{resource.name}}</b-card-title>
             <b-card-sub-title v-if="showIds">
@@ -25,7 +28,9 @@
         name: "ResourceSummary",
         props: [
             'memberId',
-            'resourceId'
+            'resourceId',
+            'simplified',
+            'textonly'
         ],
         components: {
             ComponentSummary

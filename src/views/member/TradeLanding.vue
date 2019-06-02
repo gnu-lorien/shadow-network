@@ -1,9 +1,22 @@
 <template>
-    <div class="container">
+    <b-container>
         <div class="row">
             <div class="col">
-                <button v-on:click="acceptTrade">Accept</button>
-                <button v-on:click="refresh">Refresh</button>
+                <b-jumbotron>
+                    <template slot="header">Handle a Trade</template>
+                    <template slot="lead">Transfer resources between two members of the same shadow network</template>
+                    <p>Each side may offer their resources and the system automatically transfers them when both sides accept.</p>
+                    <div v-if="0 !== me.resources.length">
+                    <p>You are offering:</p>
+                    <ul>
+                        <li v-for="id in me.resources" :key="id">
+                            <resource-summary :resourceId="id" :memberId="memberId" :textonly="true"></resource-summary>
+                        </li>
+                    </ul>
+                    </div>
+                <b-button v-on:click="acceptTrade">Accept</b-button>
+                <b-button v-on:click="refresh">Refresh</b-button>
+                </b-jumbotron>
             </div>
         </div>
         <div class="row">
@@ -17,6 +30,7 @@
                         </resource-summary>
                     </b-card-body>
                     <b-card-body v-if="adding">
+                        <button v-on:click="cancel">Cancel Adding Resources to Trade</button>
                         <resource-summary class="row" v-for="id in resources" :key="id" :resourceId="id" :memberId="memberId">
                             <button v-on:click="addToMyResources(id)">Add Resource to Trade</button>
                         </resource-summary>
@@ -34,7 +48,7 @@
                 </b-card>
             </div>
         </div>
-    </div>
+    </b-container>
 </template>
 
 <script>
@@ -94,6 +108,9 @@
             },
             async add() {
                 this.adding = true;
+            },
+            async cancel() {
+                this.adding = false;
             },
             async addToMyResources(resourceId) {
                 await this.$store.dispatch('addResourceToTrade', {
