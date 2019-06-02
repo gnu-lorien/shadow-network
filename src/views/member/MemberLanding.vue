@@ -1,7 +1,7 @@
 <template>
     <div>
         <header-view :memberId="$props.memberId"></header-view>
-        <b-navbar id="nav" type="light" variant="light">
+        <b-navbar id="nav" type="light" variant="light" class="mb-2">
             <b-navbar-nav>
                 <b-nav-item :to="{ name: 'memberResources', params: { memberId: this.$route.params.memberId } }">Resources</b-nav-item>
                 <b-nav-item :to="{ name: 'memberTrading', params: { memberId: this.$route.params.memberId } }">Trading</b-nav-item>
