@@ -5,7 +5,7 @@ import './plugins/bootstrap-vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-require('./assets/css/bootstrap.min.css');
+require('./assets/css/slate.bootswatch.bootstrap.min.css');
 
 Vue.config.productionTip = false
 
