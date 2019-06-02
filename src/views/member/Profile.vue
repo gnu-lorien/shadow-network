@@ -1,20 +1,35 @@
 <template>
-    <div>
-        <form>
-            <label>Name: </label>
-            <input type="text" v-model="name"/>
-            <label>Street Name:</label>
-            <input type="text" v-model="street_name"/>
-            <label>Portrait</label>
-            <img :src="portraitthumb_32"/>
-            <img :src="portraitthumb_64"/>
-            <img :src="portraitthumb_128"/>
-            <img :src="portraitthumb_256"/>
-            <img :src="portraitoriginal"/>
-            <input type="file" @change="handleFileChange($event)"/>
-            <button v-on:click.prevent="save">Save</button>
-        </form>
-    </div>
+    <b-container>
+        <b-form @submit.prevent="save">
+            <b-form-group
+                label-cols-sm="2"
+                description="Real name of this runner"
+                label="Real Name"
+                label-for="inputName">
+                <b-form-input type="text" v-model="name" id="inputName"/>
+            </b-form-group>
+            <b-form-group
+                label-cols-sm="2"
+                description="Street name for this runner. What they go by with other members of the network and running community."
+                label="Street Name"
+                label-for="inputStreetName">
+                <b-form-input type="text" v-model="street_name" id="inputStreetName"/>
+            </b-form-group>
+            <b-form-group
+                label-cols-sm="2"
+                description="Icon used for the runner"
+                label="Icon"
+                label-for="fileIcon">
+                <b-form-file v-model="iconFile" :state="Boolean(iconFile)" id="fileIcon"/>
+                <img :src="portraitthumb_32"/>
+                <img :src="portraitthumb_64"/>
+                <img :src="portraitthumb_128"/>
+                <img :src="portraitthumb_256" class="d-none d-md-inline"/>
+                <img :src="portraitoriginal" class="d-none d-lg-inline"/>
+            </b-form-group>
+            <b-button type="submit">Save</b-button>
+        </b-form>
+    </b-container>
 </template>
 
 <script>
@@ -33,7 +48,8 @@
                 name: "",
                 street_name: "",
                 portrait: {},
-                memberPortrait: {}
+                memberPortrait: {},
+                iconFile: null
             }
         },
         mounted: async function() {
@@ -50,6 +66,20 @@
             portraitthumb_64() { return this.memberPortrait.thumb_64 ? this.memberPortrait.thumb_64.url() : ""; },
             portraitthumb_128() { return this.memberPortrait.thumb_128 ? this.memberPortrait.thumb_128.url() : ""; },
             portraitthumb_256() { return this.memberPortrait.thumb_256 ? this.memberPortrait.thumb_256.url() : ""; }
+        },
+        watch: {
+            async iconFile() {
+                if (this.iconFile) {
+                    let name = this.iconFile.name;
+                    let startOfName = name[0].replace(/[^_a-zA-Z0-9]/g, '_');
+                    let restOfName = name.slice(1);
+                    let restOfNameFixed = restOfName.replace(/[^a-zA-Z0-9@. ~_-]/g, '_');
+                    let fixedName = startOfName + restOfNameFixed;
+                    this.portrait = new Parse.File(fixedName, this.iconFile);
+                } else {
+                    this.portrait = null;
+                }
+            }
         },
         methods: {
             async save() {
@@ -74,14 +104,6 @@
                     force: true
                 });
                 this.memberPortrait = result.portrait || {};
-            },
-            async handleFileChange(event) {
-                if (event.target.files.length !== 1) {
-                    return;
-                }
-                let file = event.target.files[0];
-                let name = file.name;
-                this.portrait = new Parse.File(name, file);
             }
         }
     }
