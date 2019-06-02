@@ -5,7 +5,7 @@
         </div>
 
         <p class="mb-1">
-            <pre>{{component.long}}</pre>
+            <vue-markdown>{{component.long}}</vue-markdown>>
         </p>
 
         <small v-if="component.credit">{{component.credit}}¥</small>
@@ -42,8 +42,12 @@
 </template>
 
 <script>
+    import VueMarkdown from 'vue-markdown';
     export default {
         name: "ComponentSummary",
+        components: {
+            VueMarkdown
+        },
         props: [
             'memberId',
             'resourceId',
