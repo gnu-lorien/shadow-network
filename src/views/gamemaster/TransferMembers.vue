@@ -1,6 +1,6 @@
 <template>
     <div class="container" v-if="needSelection">
-        <member-summary class="row" v-for="id in memberIds" :key="id" :memberId="id" @member-selected="select"/>
+        <member-select @member-selected="select"></member-select>
     </div>
     <div class="container" v-else>
         <div class="row" v-for="user in users" :key="user.id">
@@ -12,12 +12,12 @@
 
 <script>
     import Parse from 'parse';
-    import MemberSummary from '@/components/MemberSummary.vue'
     let Member = Parse.Object.extend("Member");
+    import MemberSelect from '@/components/MemberSelect.vue'
 
     export default {
         name: "GameMasterTransferMembers",
-        components: { MemberSummary },
+        components: { MemberSelect },
         data: function() {
             return {
                 members: [],
