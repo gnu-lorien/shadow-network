@@ -33,6 +33,153 @@ const tradeWithoutChangingLogin = function() {
         checkRemote(result.them.remote);
     });
 
+    it("can add a resource", async function() {
+        let result;
+        result = await store.dispatch('initiateTradeWith', {
+            themId: this.themId,
+            meId: this.meId
+        });
+        expect(result.me.local.resources).to.be.an('array').of.length(0);
+        expect(result.me.remote.get('resources')).to.be.an('array').of.length(0);
+        const {remote: resource} = await store.dispatch('createNewResource', this.meId);
+        result = await store.dispatch('addResourceToTrade', {
+            syncId: result.sync.id,
+            resourceId: resource.id,
+            memberId: this.meId
+        });
+        expect(result).to.be.an('object');
+        expect(result.me).to.be.an('object');
+        expect(result.me.local).to.be.an('object');
+        expect(result.me.remote).to.be.an('object');
+        expect(result.me.local.counter).to.equal(2);
+        expect(result.me.local.resources).to.be.an('array').that.includes(resource.id);
+        expect(result.me.local.resources).to.have.lengthOf(1);
+        expect(result.me.remote.get('counter')).to.equal(2);
+        expect(result.me.remote.get('resources')).to.be.an('array').that.includes(resource.id);
+        expect(result.me.remote.get('resources')).to.have.lengthOf(1);
+        expect(result.sync.get('counter')).to.equal(2);
+    });
+
+    it("can't add the same resource twice", async function() {
+        let result;
+        result = await store.dispatch('initiateTradeWith', {
+            themId: this.themId,
+            meId: this.meId
+        });
+        const {remote: resource} = await store.dispatch('createNewResource', this.meId);
+        result = await store.dispatch('addResourceToTrade', {
+            syncId: result.sync.id,
+            resourceId: resource.id,
+            memberId: this.meId
+        });
+        result = await store.dispatch('addResourceToTrade', {
+            syncId: result.sync.id,
+            resourceId: resource.id,
+            memberId: this.meId
+        });
+        expect(result).to.be.an('object');
+        expect(result.me).to.be.an('object');
+        expect(result.me.local).to.be.an('object');
+        expect(result.me.remote).to.be.an('object');
+        expect(result.me.local.counter).to.equal(3);
+        expect(result.me.local.resources).to.be.an('array').that.includes(resource.id);
+        expect(result.me.local.resources).to.have.lengthOf(1);
+        expect(result.me.remote.get('counter')).to.equal(3);
+        expect(result.me.remote.get('resources')).to.be.an('array').that.includes(resource.id);
+        expect(result.me.remote.get('resources')).to.have.lengthOf(1);
+        expect(result.sync.get('counter')).to.equal(3);
+    });
+
+    it("can't change other side's resources", async function() {
+        let result = await store.dispatch('initiateTradeWith', {
+            themId: this.themId,
+            meId: this.meId
+        });
+        try {
+            result.them.remote.increment('counter');
+            await result.them.remote.save();
+            expect.fail("Allowed me to save the other remote object");
+        } catch (e) {
+
+        }
+    });
+
+    it("can change my resources", async function() {
+        let result = await store.dispatch('initiateTradeWith', {
+            themId: this.themId,
+            meId: this.meId
+        });
+        result.me.remote.increment('counter');
+        await result.me.remote.save();
+    });
+
+    it ("can't add non-existent resources", async function() {
+        let result;
+        result = await store.dispatch('initiateTradeWith', {
+            themId: this.themId,
+            meId: this.meId
+        });
+        expect(result.me.local.resources).to.be.an('array').of.length(0);
+        expect(result.me.remote.get('resources')).to.be.an('array').of.length(0);
+        try {
+            result = await store.dispatch('addResourceToTrade', {
+                syncId: result.sync.id,
+                resourceId: "aoeu",
+                memberId: this.meId
+            });
+            expect.fail("Shouldn't have let me complete this dispatch.");
+        } catch (e) {
+            expect(true).to.equal(true);
+        }
+        expect(result).to.be.an('object');
+        expect(result.me).to.be.an('object');
+        expect(result.me.local).to.be.an('object');
+        expect(result.me.remote).to.be.an('object');
+        expect(result.me.local.counter).to.equal(1);
+        expect(result.me.local.resources).to.be.an('array').that.does.not.include("aoeu");
+        expect(result.me.local.resources).to.have.lengthOf(0);
+        expect(result.me.remote.get('counter')).to.equal(1);
+        expect(result.me.remote.get('resources')).to.be.an('array').that.does.not.include("aoeu");
+        expect(result.me.remote.get('resources')).to.have.lengthOf(0);
+        expect(result.sync.get('counter')).to.equal(1);
+    });
+
+    it ("can't add another person's resource", async function() {
+        let result;
+        result = await store.dispatch('initiateTradeWith', {
+            themId: this.themId,
+            meId: this.meId
+        });
+        expect(result.me.local.resources).to.be.an('array').of.length(0);
+        expect(result.me.remote.get('resources')).to.be.an('array').of.length(0);
+        let {remote: resource} = await store.dispatch('createNewResource', this.meId);
+        let acl = new Parse.ACL();
+        acl.setPublicWriteAccess(false);
+        acl.setPublicReadAccess(false);
+        resource.setACL(acl);
+        resource = await resource.save();
+        try {
+            result = await store.dispatch('addResourceToTrade', {
+                syncId: result.sync.id,
+                resourceId: resource.id,
+                memberId: this.meId
+            });
+            expect.fail("Shouldn't have let me complete this dispatch.");
+        } catch (e) {
+            expect(true).to.equal(true);
+        }
+        expect(result).to.be.an('object');
+        expect(result.me).to.be.an('object');
+        expect(result.me.local).to.be.an('object');
+        expect(result.me.remote).to.be.an('object');
+        expect(result.me.local.counter).to.equal(1);
+        expect(result.me.local.resources).to.be.an('array').that.does.not.include(resource.id);
+        expect(result.me.local.resources).to.have.lengthOf(0);
+        expect(result.me.remote.get('counter')).to.equal(1);
+        expect(result.me.remote.get('resources')).to.be.an('array').that.does.not.include(resource.id);
+        expect(result.me.remote.get('resources')).to.have.lengthOf(0);
+        expect(result.sync.get('counter')).to.equal(1);
+    });
 };
 
 describe('member/Trade.vue', () => {
@@ -56,162 +203,14 @@ describe('member/Trade.vue', () => {
 
     tradeWithoutChangingLogin();
 
-    it("can add a resource", async () => {
+    it("can complete a full trade from another to me", async function() {
         let result;
         result = await store.dispatch('initiateTradeWith', {
-            themId: themId,
-            meId: meId
+            themId: this.themId,
+            meId: this.meId
         });
-        expect(result.me.local.resources).to.be.an('array').of.length(0);
-        expect(result.me.remote.get('resources')).to.be.an('array').of.length(0);
-        const {remote: resource} = await store.dispatch('createNewResource', meId);
-        result = await store.dispatch('addResourceToTrade', {
-            syncId: result.sync.id,
-            resourceId: resource.id,
-            memberId: meId
-        });
-        expect(result).to.be.an('object');
-        expect(result.me).to.be.an('object');
-        expect(result.me.local).to.be.an('object');
-        expect(result.me.remote).to.be.an('object');
-        expect(result.me.local.counter).to.equal(2);
-        expect(result.me.local.resources).to.be.an('array').that.includes(resource.id);
-        expect(result.me.local.resources).to.have.lengthOf(1);
-        expect(result.me.remote.get('counter')).to.equal(2);
-        expect(result.me.remote.get('resources')).to.be.an('array').that.includes(resource.id);
-        expect(result.me.remote.get('resources')).to.have.lengthOf(1);
-        expect(result.sync.get('counter')).to.equal(2);
-    });
-
-    it("can't add the same resource twice", async () => {
-        let result;
-        result = await store.dispatch('initiateTradeWith', {
-            themId: themId,
-            meId: meId
-        });
-        const {remote: resource} = await store.dispatch('createNewResource', meId);
-        result = await store.dispatch('addResourceToTrade', {
-            syncId: result.sync.id,
-            resourceId: resource.id,
-            memberId: meId
-        });
-        result = await store.dispatch('addResourceToTrade', {
-            syncId: result.sync.id,
-            resourceId: resource.id,
-            memberId: meId
-        });
-        expect(result).to.be.an('object');
-        expect(result.me).to.be.an('object');
-        expect(result.me.local).to.be.an('object');
-        expect(result.me.remote).to.be.an('object');
-        expect(result.me.local.counter).to.equal(3);
-        expect(result.me.local.resources).to.be.an('array').that.includes(resource.id);
-        expect(result.me.local.resources).to.have.lengthOf(1);
-        expect(result.me.remote.get('counter')).to.equal(3);
-        expect(result.me.remote.get('resources')).to.be.an('array').that.includes(resource.id);
-        expect(result.me.remote.get('resources')).to.have.lengthOf(1);
-        expect(result.sync.get('counter')).to.equal(3);
-    });
-
-    it("can't change other side's resources", async () => {
-        let result = await store.dispatch('initiateTradeWith', {
-            themId: themId,
-            meId: meId
-        });
-        try {
-            result.them.remote.increment('counter');
-            await result.them.remote.save();
-            expect.fail("Allowed me to save the other remote object");
-        } catch (e) {
-
-        }
-    });
-
-    it("can change my resources", async () => {
-        let result = await store.dispatch('initiateTradeWith', {
-            themId: themId,
-            meId: meId
-        });
-        result.me.remote.increment('counter');
-        await result.me.remote.save();
-    });
-
-    it ("can't add non-existent resources", async () => {
-        let result;
-        result = await store.dispatch('initiateTradeWith', {
-            themId: themId,
-            meId: meId
-        });
-        expect(result.me.local.resources).to.be.an('array').of.length(0);
-        expect(result.me.remote.get('resources')).to.be.an('array').of.length(0);
-        try {
-            result = await store.dispatch('addResourceToTrade', {
-                syncId: result.sync.id,
-                resourceId: "aoeu",
-                memberId: meId
-            });
-            expect.fail("Shouldn't have let me complete this dispatch.");
-        } catch (e) {
-            expect(true).to.equal(true);
-        }
-        expect(result).to.be.an('object');
-        expect(result.me).to.be.an('object');
-        expect(result.me.local).to.be.an('object');
-        expect(result.me.remote).to.be.an('object');
-        expect(result.me.local.counter).to.equal(1);
-        expect(result.me.local.resources).to.be.an('array').that.does.not.include("aoeu");
-        expect(result.me.local.resources).to.have.lengthOf(0);
-        expect(result.me.remote.get('counter')).to.equal(1);
-        expect(result.me.remote.get('resources')).to.be.an('array').that.does.not.include("aoeu");
-        expect(result.me.remote.get('resources')).to.have.lengthOf(0);
-        expect(result.sync.get('counter')).to.equal(1);
-    });
-
-    it ("can't add another person's resource", async () => {
-        let result;
-        result = await store.dispatch('initiateTradeWith', {
-            themId: themId,
-            meId: meId
-        });
-        expect(result.me.local.resources).to.be.an('array').of.length(0);
-        expect(result.me.remote.get('resources')).to.be.an('array').of.length(0);
-        let {remote: resource} = await store.dispatch('createNewResource', meId);
-        let acl = new Parse.ACL();
-        acl.setPublicWriteAccess(false);
-        acl.setPublicReadAccess(false);
-        resource.setACL(acl);
-        resource = await resource.save();
-        try {
-            result = await store.dispatch('addResourceToTrade', {
-                syncId: result.sync.id,
-                resourceId: resource.id,
-                memberId: meId
-            });
-            expect.fail("Shouldn't have let me complete this dispatch.");
-        } catch (e) {
-            expect(true).to.equal(true);
-        }
-        expect(result).to.be.an('object');
-        expect(result.me).to.be.an('object');
-        expect(result.me.local).to.be.an('object');
-        expect(result.me.remote).to.be.an('object');
-        expect(result.me.local.counter).to.equal(1);
-        expect(result.me.local.resources).to.be.an('array').that.does.not.include(resource.id);
-        expect(result.me.local.resources).to.have.lengthOf(0);
-        expect(result.me.remote.get('counter')).to.equal(1);
-        expect(result.me.remote.get('resources')).to.be.an('array').that.does.not.include(resource.id);
-        expect(result.me.remote.get('resources')).to.have.lengthOf(0);
-        expect(result.sync.get('counter')).to.equal(1);
-    });
-
-    it("can complete a full trade from another to me", async () => {
-        let result;
-        result = await store.dispatch('initiateTradeWith', {
-            themId: themId,
-            meId: meId
-        });
-        await store.dispatch('loadOrUseCurrentMember', meId);
-        let {remote: resource} = await store.dispatch('createNewResource', themId);
+        await store.dispatch('loadOrUseCurrentMember', this.meId);
+        let {remote: resource} = await store.dispatch('createNewResource', this.themId);
         await Parse.User.logOut();
         await Parse.User.logIn(
             process.env.VUE_APP_TEST_THEM_USERNAME,
@@ -219,14 +218,14 @@ describe('member/Trade.vue', () => {
         result = await store.dispatch('addResourceToTrade', {
             syncId: result.sync.id,
             resourceId: resource.id,
-            memberId: themId
+            memberId: this.themId
         });
         result = await store.dispatch('updateTrade', {
             syncId: result.sync.id,
         });
         await store.dispatch('acceptTradeAs', {
             syncId: result.sync.id,
-            memberId: themId
+            memberId: this.themId
         });
         await Parse.User.logOut();
         await Parse.User.logIn(
@@ -237,15 +236,15 @@ describe('member/Trade.vue', () => {
         });
         await store.dispatch('acceptTradeAs', {
             syncId: result.sync.id,
-            memberId: meId
+            memberId: this.meId
         });
         await store.dispatch('completeTrade', {
             syncId: result.sync.id
         });
-        await store.dispatch('loadOrUseAllResourceIds', meId);
+        await store.dispatch('loadOrUseAllResourceIds', this.meId);
         expect(store.state.member.resourceIds).to.be.an('array').that.includes(resource.id);
 
-        let resourceIds = await store.dispatch('loadOrUseAllResourceIds', themId);
+        let resourceIds = await store.dispatch('loadOrUseAllResourceIds', this.themId);
         expect(resourceIds).to.be.an('array').that.does.not.include(resource.id);
     });
 
