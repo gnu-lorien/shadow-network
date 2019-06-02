@@ -45,6 +45,8 @@ Parse.Cloud.define('initiateTradeWith', async (request) => {
     acl.setReadAccess(meUser, true);
     acl.setWriteAccess(meUser, true);
     acl.setReadAccess(themUser.id, true);
+    acl.setRoleReadAccess('gamemaster', true);
+    acl.setRoleWriteAccess('gamemaster', true);
     offer.setACL(acl);
     offer = await offer.save();
     let themOffer = new TradeOffer({
@@ -58,6 +60,8 @@ Parse.Cloud.define('initiateTradeWith', async (request) => {
     acl.setReadAccess(themUser, true);
     acl.setWriteAccess(themUser, true);
     acl.setReadAccess(meUser.id, true);
+    acl.setRoleReadAccess('gamemaster', true);
+    acl.setRoleWriteAccess('gamemaster', true);
     themOffer.setACL(acl);
     themOffer = await themOffer.save();
 
