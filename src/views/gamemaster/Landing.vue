@@ -3,6 +3,7 @@
         <b-navbar id="nav" type="light" variant="light">
             <b-navbar-nav>
                 <b-nav-item :to="{ name: 'gamemasterTransferMembers' }">Transfer</b-nav-item>
+                <b-nav-item :to="{ name: 'gamemasterAllMembers' }">Members</b-nav-item>
             </b-navbar-nav>
         </b-navbar>
         <router-view/>

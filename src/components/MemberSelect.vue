@@ -18,9 +18,13 @@
 
     export default {
         name: "MemberSelect",
-        props: [
-            "added"
-        ],
+        props: {
+            added: Number,
+            filter: {
+                type: String,
+                default: "user"
+            }
+        },
         components: {
             MemberSummary
         },
@@ -45,14 +49,16 @@
         },
         methods: {
             async fetch() {
-                let user = Parse.User.current();
-                let userId = user.id;
                 const q = new Parse.Query(Member);
-                q.equalTo("owner", {
-                    __type: 'Pointer',
-                    className: '_User',
-                    objectId: userId
-                });
+                if ("user" === this.$props.filter) {
+                    let user = Parse.User.current();
+                    let userId = user.id;
+                    q.equalTo("owner", {
+                        __type: 'Pointer',
+                        className: '_User',
+                        objectId: userId
+                    });
+                }
                 q.select("id");
                 let members = await q.find();
                 this.members = members.map(member => member.id);
