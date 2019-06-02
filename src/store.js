@@ -251,7 +251,7 @@ let ResourcesModule = {
                 __type: 'Pointer',
                 className: 'Member',
                 objectId: memberId
-            }).select("id").skip(pageSize * (page - 1)).limit(pageSize);
+            }).descending("order").select("id").skip(pageSize * (page - 1)).limit(pageSize);
             let resources = await q.find();
             let resourceIds = resources.map(resource => resource.id);
             return Promise.resolve({
@@ -298,6 +298,7 @@ let ResourcesModule = {
             }
 
             context.state.remoteResources[resourceId].set('name', context.state.resources[resourceId].name);
+            context.state.remoteResources[resourceId].set('order', parseInt(context.state.resources[resourceId].order));
             return context.state.remoteResources[resourceId].save();
         },
         async createNewResource(context, memberId) {

@@ -1,12 +1,26 @@
 <template>
     <div class="container">
         <div class="row">
-            <div class="col text-center">
-                <form class="form-resource-edit">
-                    <label for="inputName">Name</label>
-                    <input v-model="resource.name" id="inputName"/>
-                    <button v-on:click.prevent="save">Save</button>
-                </form>
+            <div class="col">
+                <b-form @submit.prevent="save">
+                    <b-form-group
+                        id="resource-edit-fieldset-horizontal"
+                        label-cols="2"
+                        description="What to call this resource."
+                        label="Name"
+                        label-for="inputName">
+                        <b-form-input v-model="resource.name" id="inputName"/>
+                    </b-form-group>
+                    <b-form-group
+                        id="resource-edit-group-2"
+                        label-cols="2"
+                        description="Which order to display this resource."
+                        label="Order"
+                        label-for="inputOrder">
+                        <b-form-input v-model="resource.order" id="inputOrder"/>
+                    </b-form-group>
+                    <b-button type="submit">Save Resource</b-button>
+                </b-form>
             </div>
         </div>
         <div class="row">
