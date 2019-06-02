@@ -6,6 +6,14 @@
         <b-list-group>
             <b-list-group-item v-for="syncId in syncIds" :key="syncId" @click="openTrade(syncId)">
                 Trade between {{getSync(syncId).get('leftMember').get('street_name')}} and {{getSync(syncId).get('rightMember').get('street_name')}}
+                <b-row>
+                    <b-col>
+                        <member-summary :memberId="getSync(syncId).get('leftMember').id"><span></span></member-summary>
+                    </b-col>
+                    <b-col>
+                        <member-summary :memberId="getSync(syncId).get('rightMember').id"><span></span></member-summary>
+                    </b-col>
+                </b-row>
             </b-list-group-item>
         </b-list-group>
     </div>
@@ -16,11 +24,13 @@
     import Member from '@/models/member.js';
     import CurrentMember from '@/mixins/CurrentMember.js'
     import MemberSelect from '@/components/MemberSelect.vue'
+    import MemberSummary from '@/components/MemberSummary.vue'
 
     export default {
         name: "MemberTrading",
         components: {
-            MemberSelect
+            MemberSelect,
+            MemberSummary
         },
         props: [
             "memberId"
