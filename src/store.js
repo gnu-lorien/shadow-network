@@ -427,6 +427,7 @@ let ComponentsModule = {
 
 let TradingModule = {
     state: {
+        syncs: {},
         remoteSyncs: {},
         offers: {},
         remoteOffers: {},
@@ -434,12 +435,23 @@ let TradingModule = {
         remoteTrades: {}
     },
     mutations: {
-        setOffer(state, offer) {
-            state.remoteOffers[offer.id] = offer;
-            Vue.set(state.offers, offer.id, {
-                id: offer.id,
-                ...offer.attributes
-            });
+        setOffer(state, remote) {
+            state.remoteOffers[remote.id] = remote;
+            const offer = {};
+            offer.id = remote.id;
+            for (const key in remote.attributes) {
+                Vue.set(offer, `${key}`, remote.get(key));
+            }
+            Vue.set(state.offers, offer.id, offer);
+        },
+        setSync(state, remote) {
+            state.remoteSyncs[remote.id] = remote;
+            const sync = {};
+            sync.id = remote.id;
+            for (const key in remote.attributes) {
+                Vue.set(sync, `${key}`, remote.get(key));
+            }
+            Vue.set(state.syncs, sync.id, sync);
         }
     },
     actions: {
@@ -488,7 +500,7 @@ let TradingModule = {
             }
             context.commit('setOffer', me);
             context.commit('setOffer', them);
-            context.state.remoteSyncs[sync.id] = sync;
+            context.commit('setSync', sync);
             return Promise.resolve({
                 sync: sync,
                 me: me,
@@ -497,7 +509,7 @@ let TradingModule = {
         },
         async initiateTradeWith(context, { meId, themId }) {
             let result = await Parse.Cloud.run('initiateTradeWith', { meId, themId });
-            context.state.remoteSyncs[result.sync.id] = result.sync;
+            context.commit('setSync', result.sync);
             context.commit('setOffer', result.me);
             context.commit('setOffer', result.them);
             return Promise.resolve({
@@ -542,6 +554,7 @@ let TradingModule = {
             }
 
             await sync.fetch();
+            context.commit('setSync', sync);
 
             return Promise.resolve({
                 sync: sync,
@@ -580,6 +593,7 @@ let TradingModule = {
             }
 
             await sync.fetch();
+            context.commit('setSync', sync);
 
             return Promise.resolve({
                 sync: sync,
@@ -588,23 +602,6 @@ let TradingModule = {
                     remote: context.state.remoteOffers[offer.id]
                 }
             });
-        },
-        async attemptUpdate(context, inTrade) {
-            let currentCount = inTrade.get('counter');
-            inTrade.increment('counter');
-            let newTrade = await inTrade.save();
-            context.state.remoteTrades[newTrade.id] = newTrade;
-            Vue.set(context.state.trades, newTrade.id, {
-                id: newTrade.id,
-                ...newTrade.attributes
-            });
-            if (currentCount + 1 !== newTrade.get('counter')) {
-                return Promise.resolve([
-                    false,
-                    false
-                ]);
-            }
-            return Promise.resolve(newTrade);
         },
         async acceptTradeAs(context, {syncId, memberId}) {
             let sync = context.state.remoteSyncs[syncId];
@@ -622,7 +619,9 @@ let TradingModule = {
 
             offer.set('approved', sync.get('counter'));
             await offer.save();
+            context.commit('setOffer', offer);
             await sync.fetch();
+            context.commit('setSync', sync);
         },
         async completeTrade(context, params) {
             return Parse.Cloud.run('completeTrade', params);
@@ -639,13 +638,12 @@ let TradingModule = {
                 sync = await sync.fetch();
                 updateOffers = currentCounter !== sync.get('counter');
             }
+            context.commit('setSync', sync);
 
-            if (updateOffers) {
-                var left = await sync.get('left').fetch();
-                var right = await sync.get('right').fetch();
-                context.commit('setOffer', left);
-                context.commit('setOffer', right);
-            }
+            const left = await sync.get('left').fetch();
+            const right = await sync.get('right').fetch();
+            context.commit('setOffer', left);
+            context.commit('setOffer', right);
 
             return Promise.resolve({
                 sync: sync,

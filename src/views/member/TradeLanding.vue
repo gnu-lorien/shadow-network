@@ -22,8 +22,18 @@
                             </li>
                         </ul>
                     </div>
-                <b-button v-on:click="acceptTrade">Accept</b-button>
-                <b-button v-on:click="refresh">Refresh</b-button>
+                    <div v-if="!tradeCompleted">
+                        <p v-if="meAccepted">You have accepted this trade.</p>
+                        <p v-else>You have not accepted this trade.</p>
+                        <p v-if="themAccepted">They have accepted this trade.</p>
+                        <p v-else>They have not accepted this trade.</p>
+                        <b-button v-on:click="acceptTrade" v-if="!meAccepted">Accept</b-button>
+                        <b-button v-on:click="refresh">Refresh</b-button>
+                    </div>
+                    <div v-if="tradeCompleted">
+                        <p v-if="!tradeDeclined">This trade is completed!</p>
+                        <p v-else>This trade was declined.</p>
+                    </div>
                 </b-jumbotron>
             </div>
         </div>
@@ -64,6 +74,7 @@
     import ResourceSummary from '@/components/ResourceSummary.vue';
     import CurrentMember from '@/mixins/CurrentMember.js'
     import Member from '@/models/member.js'
+    import Vue from 'vue'
 
     export default {
         name: "MemberTradeLanding",
@@ -80,7 +91,8 @@
                 meOfferId: "",
                 themOfferId: "",
                 themMember: {},
-                adding: false
+                adding: false,
+
             }
         },
         mounted: async function () {
@@ -94,13 +106,35 @@
                 return this.$store.state.trading.syncs[this.$props.syncId];
             },
             me() {
-                return this.$store.state.trading.offers[this.meOfferId] || { resources: []};
+                return this.$store.state.trading.offers[this.meOfferId] || { resources: [], approved: 0};
             },
             them() {
-                return this.$store.state.trading.offers[this.themOfferId] || { resources: []};
+                return this.$store.state.trading.offers[this.themOfferId] || { resources: [], approved: 0};
             },
             themMemberStreetName() {
                 return this.themMember.get ? this.themMember.get('street_name') : "";
+            },
+            meAccepted() {
+                if (this.sync && this.sync.counter) {
+                    if (this.me.approved) {
+                        return this.sync.counter === this.me.approved;
+                    }
+                }
+                return false;
+            },
+            themAccepted() {
+                if (this.sync && this.sync.counter) {
+                    if (this.them.approved) {
+                        return this.sync.counter === this.them.approved;
+                    }
+                }
+                return false;
+            },
+            tradeCompleted() {
+                return this.sync && this.sync.completed;
+            },
+            tradeDeclined() {
+                return this.sync && this.tradeCompleted && this.sync.declined;
             }
         },
         methods: {
@@ -129,7 +163,7 @@
                 this.adding = false;
             },
             async removeFromMyResources(resourceId) {
-                 await this.$store.dispatch('removeResourceFromTrade', {
+                await this.$store.dispatch('removeResourceFromTrade', {
                     syncId: this.$props.syncId,
                     memberId: this.$props.memberId,
                     resourceId: resourceId
@@ -141,14 +175,16 @@
                         syncId: this.$props.syncId,
                         memberId: this.$props.memberId
                     });
-                    let result = await this.$store.dispatch('completeTrade', {
+                    await this.$store.dispatch('completeTrade', {
                         syncId: this.$props.syncId
                     });
-                    // RAS TODO Go back to the resources view and bask in your new resources
-                    alert("Success!");
+                    await this.refresh();
                 } catch (e) {
                     // We don't actually care if this fails. We care if it succeeds
-                    alert("Trade isn't ready to be completed." + e.message);
+                    await this.refresh();
+                    if (this.meAccepted && this.themAccepted) {
+                        alert("Trade couldn't be completed for some reason: " + e.message);
+                    }
                 }
             },
             async refresh() {
