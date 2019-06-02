@@ -5,7 +5,7 @@
         </div>
 
         <p class="mb-1">
-            <vue-markdown>{{component.long}}</vue-markdown>>
+            <vue-markdown>{{component.long}}</vue-markdown>
         </p>
 
         <small v-if="component.credit">{{component.credit}}¥</small>
