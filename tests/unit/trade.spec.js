@@ -4,29 +4,11 @@ import HelloWorld from '@/components/HelloWorld.vue'
 import Parse from 'parse'
 import store from '@/store.js'
 
-describe('member/Trade.vue', () => {
-    let themId, meId;
-    before(function() {
-        Parse.serverURL = process.env.VUE_APP_PARSE_SERVER_URL;
-        Parse.initialize(
-            'APPLICATION_ID', // This is your Application ID
-            'g8q6x9uvsept5Sjfz3hdiiP3mh5mgOoda2rZeP4I' // This is your Javascript key
-        );
-        meId = "UjAJB34E6d";
-        themId = "tUl6fCXYD4";
-        return Parse.User.logIn(
-            process.env.VUE_APP_TEST_USERNAME,
-            process.env.VUE_APP_TEST_PASSWORD)
-            .finally(() => {
-                expect(Parse.User.current()).not.to.equal(undefined);
-            });
-
-    });
-
-    it('can initiate a trade', async () => {
+const tradeWithoutChangingLogin = function() {
+    it('can initiate a trade', async function() {
         let result = await store.dispatch('initiateTradeWith', {
-            themId: themId,
-            meId: meId
+            themId: this.themId,
+            meId: this.meId
         });
         expect(result).to.be.an('object');
         let sync = result.sync;
@@ -50,6 +32,29 @@ describe('member/Trade.vue', () => {
         checkLocal(result.them.local);
         checkRemote(result.them.remote);
     });
+
+};
+
+describe('member/Trade.vue', () => {
+    before(function() {
+        Parse.serverURL = process.env.VUE_APP_PARSE_SERVER_URL;
+        Parse.initialize(
+            'APPLICATION_ID', // This is your Application ID
+            'g8q6x9uvsept5Sjfz3hdiiP3mh5mgOoda2rZeP4I' // This is your Javascript key
+        );
+        this.meId = "UjAJB34E6d";
+        this.themId = "tUl6fCXYD4";
+        this.gamemasterId = "if1YbUYMUB";
+        return Parse.User.logIn(
+            process.env.VUE_APP_TEST_USERNAME,
+            process.env.VUE_APP_TEST_PASSWORD)
+            .finally(() => {
+                expect(Parse.User.current()).not.to.equal(undefined);
+            });
+
+    });
+
+    tradeWithoutChangingLogin();
 
     it("can add a resource", async () => {
         let result;
