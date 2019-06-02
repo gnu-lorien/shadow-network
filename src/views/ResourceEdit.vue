@@ -61,7 +61,9 @@
         },
         methods: {
             fetch() {
-                this.$store.dispatch('loadOrUseResource', this.$props.resourceId)
+                this.$store.dispatch('loadOrUseResource', {
+                    resourceId: this.$props.resourceId
+                })
                     .then(() => {
                         return this.$store.dispatch('loadOrUseResourceComponents', this.$props.resourceId);
                     })

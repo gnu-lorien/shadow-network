@@ -271,7 +271,9 @@ let ResourcesModule = {
                 });
         },
         async loadOrUseResourceComponents(context, resourceId) {
-            await context.dispatch('loadOrUseResource', resourceId);
+            await context.dispatch('loadOrUseResource', {
+                resourceId: resourceId
+            });
             if (context.state.resources[resourceId] !== undefined) {
                 if (context.state.resources[resourceId].componentIds !== undefined) {
                     return;
@@ -281,7 +283,9 @@ let ResourcesModule = {
             Vue.set(context.state.resources[resourceId], 'componentIds', components.map(c => c.id));
         },
         destroyResource(context, resourceId) {
-            return context.dispatch('loadOrUseResource', resourceId)
+            return context.dispatch('loadOrUseResource', {
+                resourceId: resourceId
+            })
                 .then(() => {
                     // Cache now has the resource we want
                     return context.state.remoteResources[resourceId].destroy();

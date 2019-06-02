@@ -46,7 +46,9 @@
         },
         methods: {
             async fetch() {
-                await this.$store.dispatch('loadOrUseResource', this.$props.resourceId);
+                await this.$store.dispatch('loadOrUseResource', {
+                    resourceId: this.$props.resourceId
+                });
                 await this.$store.dispatch('loadOrUseResourceComponents', this.$props.resourceId);
             },
             edit() {
