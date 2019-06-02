@@ -2,9 +2,7 @@
     <div class="container">
         <button v-on:click="initiatingATrade">Initiate a Trade</button>
         <button v-on:click="declineAllTrades">Decline All Trades</button>
-        <div v-if="initiating" class="container">
-            <member-summary class="row" v-for="id in members" :key="id" :memberId="id" @member-selected="select"/>
-        </div>
+        <member-select v-if="initiating" @member-selected="select"></member-select>
         <b-list-group>
             <b-list-group-item v-for="syncId in syncIds" :key="syncId" @click="openTrade(syncId)">
                 Trade between {{getSync(syncId).get('leftMember').get('street_name')}} and {{getSync(syncId).get('rightMember').get('street_name')}}
@@ -18,10 +16,13 @@
     import Member from '@/models/member.js';
     import CurrentMember from '@/mixins/CurrentMember.js'
     import MemberSummary from '@/components/MemberSummary.vue'
+    import MemberSelect from '@/components/MemberSelect.vue'
+
     export default {
         name: "MemberTrading",
         components: {
-            MemberSummary
+            MemberSummary,
+            MemberSelect
         },
         props: [
             "memberId"
