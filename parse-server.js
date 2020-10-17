@@ -9,7 +9,7 @@ var settings = {
     "appId": process.env.APPLICATION_ID || "APPLICATION_ID",
     "appName": process.env.APPLICATION_NAME || "Shadow Network",
     "masterKey": process.env.MASTER_KEY || "MASTER_KEY",
-    "databaseURI": process.env.MONGODB_URI || "mongodb://localhost:27017/thebasicmongo",
+    "databaseURI": process.env.DB_URI || "mongodb://localhost:27017/thebasicmongo",
     "mountPath": process.env.MOUNT_PATH || "/parse/1",
     "cloud": process.env.CLOUD_CODE_MAIN || "cloud/main.js",
     "verbose": true,
