@@ -1,0 +1,8 @@
+Components need to have references to the member that owns them in addition to their reference.
+I need a way to clear all of the resources off of a test character
+I need a way to clear all of the trades off of a test character
+Actually implement the vault. It's where items that other people can't see go. Anything in the vault doesn't show up in the trading interface.
+
+How do I handle characters that are "private" when you want to do trades with them?
+ - This is meant to be a LARPing app, so should I have a page where people can export QR codes for their characters?
+ - QR codes for their trades?
