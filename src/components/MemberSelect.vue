@@ -1,6 +1,6 @@
 <template>
     <b-container>
-        <b-row align-v="start" v-for="memberIndex in rowCount" class="mb-2">
+        <b-row align-v="start" v-for="memberIndex in rowCount" :key="memberIndex" class="mb-2">
             <b-col v-for="id in members.slice((memberIndex - 1) * membersPerRow, memberIndex * membersPerRow)" :key="id" sm>
                 <member-summary :memberId="id" @member-selected="select"/>
             </b-col>
