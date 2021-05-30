@@ -1,7 +1,7 @@
-var express = require('express'),
-    http = require('http'),
-    ParseServer = require('parse-server').ParseServer,
-    ParseDashboard = require('parse-dashboard');
+const express = require('express')
+const http = require('http')
+const { default: ParseServer, ParseGraphQLServer } = require('parse-server')
+const ParseDashboard = require('parse-dashboard')
 
 var app = express();
 const port = process.env.PORT || 1337;
@@ -17,10 +17,15 @@ var settings = {
     "serverURL": "http://0.0.0.0:" + port + "/parse/1"
 };
 
+const graphQLSettings = {
+    "graphQLPath": process.env.GRAPHQL_MOUNT_PATH || "/graphql"
+}
+
 var dashboardSettings = {
     "apps": [
         {
             "serverURL": process.env.PUBLIC_SERVER_URL || ("http://localhost:" + port + "/parse/1"),
+            "graphQLServerURL": process.env.GRAPHQL_PUBLIC_SERVER_URL || ("http://localhost:" + port + "/graphql"),
             "appId": process.env.APPLICATION_ID || "APPLICATION_ID",
             "masterKey": process.env.MASTER_KEY || "MASTER_KEY",
             "appName": process.env.APPLICATION_NAME || "Shadow Network"
@@ -35,7 +40,11 @@ var dashboardSettings = {
 }
 
 var api = new ParseServer(settings);
-app.use('/parse/1', api);
+const ql = new ParseGraphQLServer(api, graphQLSettings);
+
+app.use(settings.mountPath, api.app);
+ql.applyGraphQL(app)
+
 
 var dashboard = new ParseDashboard(dashboardSettings, { allowInsecureHTTP: true});
 app.use('/apps', dashboard);
