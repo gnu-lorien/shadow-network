@@ -6,3 +6,6 @@ Actually implement the vault. It's where items that other people can't see go. A
 How do I handle characters that are "private" when you want to do trades with them?
  - This is meant to be a LARPing app, so should I have a page where people can export QR codes for their characters?
  - QR codes for their trades?
+
+Really want "chests" or "groups" to make it easier to move around resources. I keep wanting to deliver packets of information
+ that can be opened later which include a bunch of resources.
