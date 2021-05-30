@@ -406,9 +406,12 @@ let ComponentsModule = {
                 });
         },
         async createNewComponent(context, resourceId) {
+            const member = await new Parse.Query(Member).get(context.rootState.resources.remoteResources[resourceId].get('member').id);
+            const memberUser = new Parse.User({id: member.get('owner').id});
             const component = new Component();
             const acl = new Parse.ACL();
-            acl.setWriteAccess(context.rootState.resources.remoteResources[resourceId].get('member').id, true);
+            acl.setReadAccess(memberUser, true);
+            acl.setWriteAccess(memberUser, true);
             acl.setRoleReadAccess('gamemaster', true);
             acl.setRoleWriteAccess('gamemaster', true);
             component.setACL(acl);
