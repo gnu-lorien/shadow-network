@@ -31,7 +31,7 @@
     "chai": "^4.1.2",
     "eslint": "^7.27.0",
     "eslint-plugin-vue": "^7.10.0",
-    "mocha": "^5.0.5",
+    "mocha": "^8.4.0",
     "mutationobserver-shim": "^0.3.3",
     "node-sass": "^5.0.0",
     "popper.js": "^1.15.0",
