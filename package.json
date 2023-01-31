@@ -16,7 +16,7 @@
     "jimp": "^0.16.1",
     "parse": "^3.2.0",
     "parse-dashboard": "^2.1.0",
-    "parse-server": "^4.5.0",
+    "parse-server": "^5.4.1",
     "vue": "^2.6.12",
     "vue-markdown": "^2.2.4",
     "vue-router": "^3.0.3",
